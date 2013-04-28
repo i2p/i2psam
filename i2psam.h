@@ -31,6 +31,36 @@
 #define SAM_DEFAULT_MAX_VER     "3.0"
 #define SAM_GENERATE_MY_DESTINATION     "TRANSIENT"
 #define SAM_MY_NAME             "ME"
+#define SAM_DEFAULT_I2P_OPTIONS ""
+
+#define SAM_NAME_INBOUND_QUANTITY           "inbound.quantity"
+#define SAM_DEFAULT_INBOUND_QUANTITY        2
+#define SAM_NAME_INBOUND_LENGTH             "inbound.length"
+#define SAM_DEFAULT_INBOUND_LENGTH          2
+#define SAM_NAME_INBOUND_LENGTHVARIANCE     "inbound.lengthVariance"
+#define SAM_DEFAULT_INBOUND_LENGTHVARIANCE  0
+#define SAM_NAME_INBOUND_BACKUPQUANTITY     "inbound.backupquantity"
+#define SAM_DEFAULT_INBOUND_BACKUPQUANTITY  0
+#define SAM_NAME_INBOUND_ALLOWZEROHOP       "inbound.allowzerohop"
+#define SAM_DEFAULT_INBOUND_ALLOWZEROHOP    true
+#define SAM_NAME_INBOUND_IPRESTRICTION      "inbound.iprestriction"
+#define SAM_DEFAULT_INBOUND_IPRESTRICTION   2
+#define SAM_NAME_OUTBOUND_QUANTITY          "outbound.quantity"
+#define SAM_DEFAULT_OUTBOUND_QUANTITY       2
+#define SAM_NAME_OUTBOUND_LENGTH            "outbound.length"
+#define SAM_DEFAULT_OUTBOUND_LENGTH         2
+#define SAM_NAME_OUTBOUND_LENGTHVARIANCE    "outbound.lengthvariance"
+#define SAM_DEFAULT_OUTBOUND_LENGTHVARIANCE 0
+#define SAM_NAME_OUTBOUND_BACKUPQUANTITY    "outbound.backupquantity"
+#define SAM_DEFAULT_OUTBOUND_BACKUPQUANTITY 0
+#define SAM_NAME_OUTBOUND_ALLOWZEROHOP      "outbound.allowzerohop"
+#define SAM_DEFAULT_OUTBOUND_ALLOWZEROHOP   true
+#define SAM_NAME_OUTBOUND_IPRESTRICTION     "outbound.iprestriction"
+#define SAM_DEFAULT_OUTBOUND_IPRESTRICTION  2
+#define SAM_NAME_OUTBOUND_PRIORITY          "outbound.priority"
+#define SAM_DEFAULT_OUTBOUND_PRIORITY       0
+
+
 
 namespace SAM
 {
@@ -219,6 +249,7 @@ private:
     std::string nickname_;
     std::string sessionID_;
     std::string myDestination_;
+    std::string i2pOptions_;
 
     struct ForwardedStream
     {
@@ -231,13 +262,17 @@ private:
     typedef std::list<ForwardedStream> ForwardedStreamsContainer;
     ForwardedStreamsContainer forwardedStreams_;
 
-    bool createStreamSession(std::auto_ptr<Socket>& newSocket, const std::string& nickname, const std::string& myDestination = SAM_GENERATE_MY_DESTINATION);
+    bool createStreamSession(
+            std::auto_ptr<Socket>& newSocket,
+            const std::string& nickname,
+            const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
+            const std::string& i2pOptions = SAM_DEFAULT_I2P_OPTIONS);
     bool reforwardAll();
 
     static Message::Result request(Socket& socket, const std::string& requestStr, const std::string& keyOnSuccess);
 
     // commands
-    static Message::Result createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination);
+    static Message::Result createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options);
     static Message::Result namingLookup(Socket& socket, const std::string& name);
     static std::pair<const Message::eStatus, std::pair<const std::string, const std::string> > destGenerate(Socket& socket);
     static Message::Result accept(Socket& socket, const std::string& sessionID, bool silent);
@@ -247,20 +282,22 @@ private:
 public:
     StreamSession(
             const std::string& nickname,
-            const std::string& SAMHost = SAM_DEFAULT_ADDRESS,
-            uint16_t SAMPort = SAM_DEFAULT_PORT,
+            const std::string& SAMHost       = SAM_DEFAULT_ADDRESS,
+                  uint16_t     SAMPort       = SAM_DEFAULT_PORT,
             const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
-            const std::string& minVer = SAM_DEFAULT_MIN_VER,
-            const std::string& maxVer = SAM_DEFAULT_MAX_VER);
+            const std::string& i2pOptions    = SAM_DEFAULT_I2P_OPTIONS,
+            const std::string& minVer        = SAM_DEFAULT_MIN_VER,
+            const std::string& maxVer        = SAM_DEFAULT_MAX_VER);
     ~StreamSession();
 
     bool createStreamSession(
             const std::string& nickname,
-            const std::string& SAMHost = SAM_DEFAULT_ADDRESS,
-            uint16_t SAMPort = SAM_DEFAULT_PORT,
+            const std::string& SAMHost       = SAM_DEFAULT_ADDRESS,
+                  uint16_t     SAMPort       = SAM_DEFAULT_PORT,
             const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
-            const std::string& minVer = SAM_DEFAULT_MIN_VER,
-            const std::string& maxVer = SAM_DEFAULT_MAX_VER); // recreates with new parameters
+            const std::string& i2pOptions    = SAM_DEFAULT_I2P_OPTIONS,
+            const std::string& minVer        = SAM_DEFAULT_MIN_VER,
+            const std::string& maxVer        = SAM_DEFAULT_MAX_VER); // recreates with new parameters
 
     bool createStreamSession(); // recreates with current parameters
 

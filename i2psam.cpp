@@ -259,13 +259,14 @@ StreamSession::StreamSession(
         const std::string& SAMHost /*= SAM_DEFAULT_ADDRESS*/,
         uint16_t SAMPort /*= SAM_DEFAULT_PORT*/,
         const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
+        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/,
         const std::string& minVer /*= SAM_DEFAULT_MIN_VER*/,
         const std::string& maxVer /*= SAM_DEFAULT_MAX_VER*/)
     : socket_(new Socket(SAMHost, SAMPort, minVer, maxVer))/*,
       reconnects_(0)*/
 
 {
-    (void)createStreamSession(socket_, nickname, myDestination);
+    (void)createStreamSession(socket_, nickname, myDestination, i2pOptions);
 }
 
 StreamSession::~StreamSession()
@@ -285,9 +286,9 @@ Message::Result StreamSession::request(Socket& socket, const std::string& reques
     return Message::Result(status, (status == Message::OK) ? Message::getValue(answer, keyOnSuccess) : answer);
 }
 
-Message::Result StreamSession::createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination)
+Message::Result StreamSession::createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options)
 {
-    return request(socket, Message::sessionCreate(Message::sssStream, sessionID, nickname, destination), "DESTINATION");
+    return request(socket, Message::sessionCreate(Message::sssStream, sessionID, nickname, destination, options), "DESTINATION");
 }
 
 Message::Result StreamSession::namingLookup(Socket& socket, const std::string& name)
@@ -326,10 +327,14 @@ Message::Result StreamSession::forward(Socket& socket, const std::string& sessio
     return request(socket, Message::streamForward(sessionID, host, port, silent), "");
 }
 
-bool StreamSession::createStreamSession(std::auto_ptr<Socket>& newSocket, const std::string& nickname, const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/)
+bool StreamSession::createStreamSession(
+        std::auto_ptr<Socket>& newSocket,
+        const std::string& nickname,
+        const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
+        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/)
 {
     const std::string newSessionID = generateSessionID();
-    const Message::Result result = createStreamSession(*newSocket, newSessionID, nickname, myDestination);
+    const Message::Result result = createStreamSession(*newSocket, newSessionID, nickname, myDestination, i2pOptions);
     switch(result.first)
     {
     case Message::OK:
@@ -342,6 +347,7 @@ bool StreamSession::createStreamSession(std::auto_ptr<Socket>& newSocket, const 
     myDestination_ = result.second;
     sessionID_ = newSessionID;
     socket_ = newSocket;    // release and copy
+    i2pOptions_ = i2pOptions;
 
     if (!reforwardAll())
         return false;
@@ -354,17 +360,17 @@ bool StreamSession::createStreamSession(
         const std::string& SAMHost /*= SAM_DEFAULT_ADDRESS*/,
         uint16_t SAMPort /*= SAM_DEFAULT_PORT*/,
         const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
-        const std::string& minVer /*= SAM_DEFAULT_MIN_VER*/,
-        const std::string& maxVer /*= SAM_DEFAULT_MAX_VER*/)
+        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/,
+        const std::string& minVer, const std::string &maxVer /*= SAM_DEFAULT_MAX_VER*/)
 {
     std::auto_ptr<Socket> newSocket(new Socket(SAMHost, SAMPort, minVer, maxVer));
-    return createStreamSession(newSocket, nickname, myDestination);
+    return createStreamSession(newSocket, nickname, myDestination, i2pOptions);
 }
 
 bool StreamSession::createStreamSession()
 {
     std::auto_ptr<Socket> newSocket(new Socket(*socket_));
-    return createStreamSession(newSocket, nickname_, myDestination_);
+    return createStreamSession(newSocket, nickname_, myDestination_, i2pOptions_);
 }
 
 bool StreamSession::reforwardAll()
