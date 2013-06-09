@@ -25,13 +25,13 @@
 #define SAM_INVALID_SOCKET      (-1)
 #define SAM_SOCKET_ERROR        (-1)
 
-#define SAM_DEFAULT_ADDRESS     "127.0.0.1"
-#define SAM_DEFAULT_PORT        7656
-#define SAM_DEFAULT_MIN_VER     "3.0"
-#define SAM_DEFAULT_MAX_VER     "3.0"
-#define SAM_GENERATE_MY_DESTINATION     "TRANSIENT"
-#define SAM_MY_NAME             "ME"
-#define SAM_DEFAULT_I2P_OPTIONS ""
+#define SAM_DEFAULT_ADDRESS         "127.0.0.1"
+#define SAM_DEFAULT_PORT            7656
+#define SAM_DEFAULT_MIN_VER         "3.0"
+#define SAM_DEFAULT_MAX_VER         "3.0"
+#define SAM_GENERATE_MY_DESTINATION "TRANSIENT"
+#define SAM_MY_NAME                 "ME"
+#define SAM_DEFAULT_I2P_OPTIONS     ""
 
 #define SAM_NAME_INBOUND_QUANTITY           "inbound.quantity"
 #define SAM_DEFAULT_INBOUND_QUANTITY        2
@@ -59,8 +59,6 @@
 #define SAM_DEFAULT_OUTBOUND_IPRESTRICTION  2
 #define SAM_NAME_OUTBOUND_PRIORITY          "outbound.priority"
 #define SAM_DEFAULT_OUTBOUND_PRIORITY       0
-
-
 
 namespace SAM
 {
@@ -245,12 +243,6 @@ public:
 class StreamSession
 {
 private:
-    /*mutable*/ std::auto_ptr<Socket> socket_;
-    std::string nickname_;
-    std::string sessionID_;
-    std::string myDestination_;
-    std::string i2pOptions_;
-
     struct ForwardedStream
     {
         Socket* socket;
@@ -260,6 +252,13 @@ private:
     };
 
     typedef std::list<ForwardedStream> ForwardedStreamsContainer;
+
+    mutable std::auto_ptr<Socket> socket_;
+    std::string nickname_;
+    std::string sessionID_;
+    std::string myDestination_;
+    std::string i2pOptions_;
+    bool isGenerated_;
     ForwardedStreamsContainer forwardedStreams_;
 
     bool createStreamSession(
@@ -322,6 +321,7 @@ public:
     const std::string& getMinVer() const;
     const std::string& getMaxVer() const;
     const std::string& getVersion() const;
+    bool isDestinationGenerated() const;
 };
 
 } // namespace SAM

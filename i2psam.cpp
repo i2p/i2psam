@@ -177,7 +177,7 @@ std::string Socket::read()
     if (recievedBytes == SAM_SOCKET_ERROR)
     {
         close();
-        print_error("Failed to recieve data");
+        print_error("Failed to receive data");
         return std::string();
     }
     if (recievedBytes == 0)
@@ -283,7 +283,9 @@ Message::Result StreamSession::request(Socket& socket, const std::string& reques
     socket.write(requestStr);
     const std::string answer = socket.read();
     const Message::eStatus status = Message::checkAnswer(answer);
-    return Message::Result(status, (status == Message::OK) ? Message::getValue(answer, keyOnSuccess) : answer);
+    return Message::Result(
+                status,
+                (status == Message::OK) ? Message::getValue(answer, keyOnSuccess) : answer);
 }
 
 Message::Result StreamSession::createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options)
@@ -298,7 +300,7 @@ Message::Result StreamSession::namingLookup(Socket& socket, const std::string& n
 
 std::pair<const Message::eStatus, std::pair<const std::string, const std::string> > StreamSession::destGenerate(Socket &socket)
 {
-// while answer for DEST GENERATE request doesn't contain a "RESULT" field we parse it manually
+// while answer for a DEST GENERATE request doesn't contain a "RESULT" field we parse it manually
 
     typedef std::pair<const std::string, const std::string> AnswerType;
     typedef std::pair<const Message::eStatus, AnswerType> ResultType;
@@ -348,11 +350,9 @@ bool StreamSession::createStreamSession(
     sessionID_ = newSessionID;
     socket_ = newSocket;    // release and copy
     i2pOptions_ = i2pOptions;
+    isGenerated_ = (myDestination == SAM_GENERATE_MY_DESTINATION);
 
-    if (!reforwardAll())
-        return false;
-
-    return true;
+    return reforwardAll();
 }
 
 bool StreamSession::createStreamSession(
@@ -369,8 +369,9 @@ bool StreamSession::createStreamSession(
 
 bool StreamSession::createStreamSession()
 {
-    std::auto_ptr<Socket> newSocket(new Socket(*socket_));
-    return createStreamSession(newSocket, nickname_, myDestination_, i2pOptions_);
+    const Socket& currSocket = *socket_;
+    std::auto_ptr<Socket> newSocket(new Socket(currSocket));
+    return createStreamSession(newSocket, nickname_, (isGenerated_ ? SAM_GENERATE_MY_DESTINATION : myDestination_), i2pOptions_);
 }
 
 bool StreamSession::reforwardAll()
@@ -553,6 +554,10 @@ const sockaddr_in& StreamSession::getAddress() const
     return socket_->getAddress();
 }
 
+bool StreamSession::isDestinationGenerated() const
+{
+    return isGenerated_;
+}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -564,7 +569,7 @@ std::string Message::createSAMRequest(const char* format, ...)
 
     va_list args;
     va_start (args, format);
-    int sizeToSend = vsnprintf(buffer, SAM_BUFSIZE, format, args);
+    const int sizeToSend = vsnprintf(buffer, SAM_BUFSIZE, format, args);
     va_end(args);
 
     if (sizeToSend < 0)
