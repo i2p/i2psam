@@ -245,9 +245,7 @@ NewStreamSession::NewStreamSession(
     : socket_(SAMHost, SAMPort, minVer, maxVer)
     , nickname_(nickname)
     , sessionID_(generateSessionID())
-//    , myDestination_(myDestination)
     , i2pOptions_(i2pOptions)
-//    , isDestGenerated_(myDestination == SAM_GENERATE_MY_DESTINATION)
     , isSick_(false)
 {
     myDestination_ = createStreamSession(destination);
@@ -259,7 +257,6 @@ NewStreamSession::NewStreamSession(NewStreamSession& rhs)
     , sessionID_(generateSessionID())
     , myDestination_(rhs.myDestination_)
     , i2pOptions_(rhs.i2pOptions_)
-//    , isDestGenerated_(rhs.isDestGenerated_)
     , isSick_(false)
 {
     rhs.fallSick();
@@ -338,7 +335,6 @@ RequestResult<std::auto_ptr<Socket> > NewStreamSession::connect(const std::strin
     return ResultType();
 }
 
-
 RequestResult<void> NewStreamSession::forward(const std::string& host, uint16_t port, bool silent)
 {
     typedef RequestResult<void> ResultType;
@@ -383,7 +379,6 @@ RequestResult<const std::string> NewStreamSession::namingLookup(const std::strin
     return ResultType();
 }
 
-
 RequestResult<const FullDestination> NewStreamSession::destGenerate() const
 {
     typedef RequestResult<const FullDestination> ResultType;
@@ -413,14 +408,9 @@ FullDestination NewStreamSession::createStreamSession(const std::string& destina
     if (answer.status != Message::OK)
     {
         fallSick();
-        return FullDestination()/*ResultType()*/;
+        return FullDestination();
     }
-
     return FullDestination(answer.value.substr(0, I2P_DESTINATION_SIZE), answer.value, (destination == SAM_GENERATE_MY_DESTINATION));
-
-//    myDestination_.pub = myDestination;
-//    myDestination_.priv = answer.value;
-//    myDestination_.isGenerated = (myDestination == SAM_GENERATE_MY_DESTINATION);
 }
 
 void NewStreamSession::fallSick() const
@@ -530,20 +520,10 @@ const std::string& NewStreamSession::getSessionID() const
     return sessionID_;
 }
 
-//const std::string& NewStreamSession::getMyDestination() const
-//{
-//    return myDestination_;
-//}
-
 const std::string& NewStreamSession::getOptions() const
 {
     return i2pOptions_;
 }
-
-//bool NewStreamSession::isDestGenerated() const
-//{
-//    return isDestGenerated_;
-//}
 
 const FullDestination& NewStreamSession::getMyDestination() const
 {
@@ -587,42 +567,48 @@ const std::string& NewStreamSession::getSAMVersion() const
 
 //--------------------------------------------------------------------------------------------------
 
-class StreamSessionAdapter::SessionHolder
-{
-public:
-    explicit SessionHolder(std::auto_ptr<NewStreamSession> session)
+    class StreamSessionAdapter::SessionHolder
+    {
+    public:
+        explicit SessionHolder(std::auto_ptr<NewStreamSession> session);
+
+        const NewStreamSession& getSession() const;
+        NewStreamSession& getSession();
+    private:
+        void heal() const;
+        void reborn() const;
+
+        mutable std::auto_ptr<NewStreamSession> session_;
+    };
+    StreamSessionAdapter::SessionHolder::SessionHolder(std::auto_ptr<NewStreamSession> session)
         : session_(session)
     {}
 
-    const NewStreamSession& getSession() const
+    const NewStreamSession& StreamSessionAdapter::SessionHolder::getSession() const
     {
         heal();
         return *session_;
     }
 
-    NewStreamSession& getSession()
+    NewStreamSession& StreamSessionAdapter::SessionHolder::getSession()
     {
         heal();
         return *session_;
     }
 
-private:
-    void heal() const
+    void StreamSessionAdapter::SessionHolder::heal() const
     {
         if (!session_->isSick())
             return;
         reborn(); // if we don't know how to heal it just reborn it
     }
 
-    void reborn() const
+    void StreamSessionAdapter::SessionHolder::reborn() const
     {
         std::auto_ptr<NewStreamSession> newSession(new NewStreamSession(*session_));
         if (!newSession->isSick() && session_->isSick())
             session_ = newSession;
     }
-
-    mutable std::auto_ptr<NewStreamSession> session_;
-};
 
 StreamSessionAdapter::StreamSessionAdapter(
         const std::string& nickname,
@@ -636,6 +622,9 @@ StreamSessionAdapter::StreamSessionAdapter(
           new SessionHolder(
               std::auto_ptr<NewStreamSession>(
                   new NewStreamSession(nickname, SAMHost, SAMPort, myDestination, i2pOptions, minVer, maxVer))))
+{}
+
+StreamSessionAdapter::~StreamSessionAdapter()
 {}
 
 SOCKET StreamSessionAdapter::accept(bool silent)
@@ -725,365 +714,6 @@ const std::string& StreamSessionAdapter::getOptions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-
-//std::string StreamSession::generateSessionID()
-//{
-//    static const int minSessionIDLength = 5;
-//    static const int maxSessionIDLength = 9;
-//    static const char sessionIDAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//    int length = minSessionIDLength - 1;
-//    std::string result;
-
-//    srand(time(NULL));
-
-//    while(length < minSessionIDLength)
-//        length = rand() % maxSessionIDLength;
-
-//    while (length-- > 0)
-//        result += sessionIDAlphabet[rand() % (sizeof(sessionIDAlphabet)-1)];
-
-//    return result;
-//}
-
-//StreamSession::StreamSession(
-//        const std::string& nickname,
-//        const std::string& SAMHost /*= SAM_DEFAULT_ADDRESS*/,
-//        uint16_t SAMPort /*= SAM_DEFAULT_PORT*/,
-//        const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
-//        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/,
-//        const std::string& minVer /*= SAM_DEFAULT_MIN_VER*/,
-//        const std::string& maxVer /*= SAM_DEFAULT_MAX_VER*/)
-//    : socket_(new Socket(SAMHost, SAMPort, minVer, maxVer))/*,
-//      reconnects_(0)*/
-
-//{
-//    (void)createStreamSession(socket_, nickname, myDestination, i2pOptions);
-//}
-
-//StreamSession::~StreamSession()
-//{
-//    for (ForwardedStreamsContainer::const_iterator it = forwardedStreams_.begin(), end = forwardedStreams_.end(); it != end; ++it)
-//        delete (it->socket);
-//    std::cout << "Closing SAM session..." << std::endl;
-//}
-
-//Message::Answer StreamSession::rawRequest(Socket& socket, const std::string& requestStr)
-//{
-//    if (!socket.isOk())
-//        return Message::Answer(Message::CLOSED_SOCKET, std::string());
-//    socket.write(requestStr);
-//    const std::string answer = socket.read();
-//    const Message::eStatus status = Message::checkAnswer(answer);
-//    return Message::Answer(status, answer);
-//}
-
-//Message::Answer StreamSession::request(Socket& socket, const std::string& requestStr, const std::string& keyOnSuccess)
-//{
-//    Message::Answer answer = rawRequest(socket, requestStr);
-//    if (status == Message::OK)
-//        answer.value = Message::getValue(answer.value, keyOnSuccess);
-//    return answer;
-
-
-////    if (!socket.isOk())
-////        return Message::Answer(Message::CLOSED_SOCKET, std::string());
-////    socket.write(requestStr);
-////    const std::string answer = socket.read();
-////    const Message::eStatus status = Message::checkAnswer(answer);
-////    return Message::Answer(
-////                status,
-////                (status == Message::OK) ? Message::getValue(answer, keyOnSuccess) : answer);
-//}
-
-//Message::eStatus StreamSession::request(Socket& socket, const std::string& requestStr)
-//{
-//    return rawRequest(socket, requestStr).status;
-
-////    if (!socket.isOk())
-////        return Message::CLOSED_SOCKET;
-////    socket.write(requestStr);
-////    const std::string answer = socket.read();
-////    return Message::checkAnswer(answer);
-//}
-
-//Message::Answer StreamSession::createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options)
-//{
-//    return request(socket, Message::sessionCreate(Message::sssStream, sessionID, nickname, destination, options), "DESTINATION");
-//}
-
-//Message::Answer StreamSession::namingLookup(Socket& socket, const std::string& name)
-//{
-//    return request(socket, Message::namingLookup(name), "VALUE");
-//}
-
-//std::pair
-//<
-//    const Message::eStatus,
-//    std::pair<const std::string, const std::string>
-//>
-//StreamSession::destGenerate(Socket &socket)
-//{
-//// while answer for a DEST GENERATE request doesn't contain a "RESULT" field we parse it manually
-
-//    typedef std::pair<const std::string, const std::string> AnswerType;
-//    typedef std::pair<const Message::eStatus, AnswerType> ResultType;
-
-//    if (!socket.isOk())
-//        return ResultType(Message::CLOSED_SOCKET, AnswerType());
-//    socket.write(Message::destGenerate());
-//    const std::string answer = socket.read();
-//    const std::string pub = Message::getValue(answer, "PUB");
-//    const std::string priv = Message::getValue(answer, "PRIV");
-//    return (!pub.empty() && !priv.empty()) ? ResultType(Message::OK, AnswerType(pub, priv)) : ResultType(Message::EMPTY_ANSWER, AnswerType());
-//}
-
-//Message::Answer StreamSession::accept(Socket& socket, const std::string& sessionID, bool silent)
-//{
-//    return request(socket, Message::streamAccept(sessionID, silent), "");
-//}
-
-//Message::Answer StreamSession::connect(Socket& socket, const std::string& sessionID, const std::string& destination, bool silent)
-//{
-//    return request(socket, Message::streamConnect(sessionID, destination, silent), "");
-//}
-
-//Message::Answer StreamSession::forward(Socket& socket, const std::string& sessionID, const std::string& host, uint16_t port, bool silent)
-//{
-//    return request(socket, Message::streamForward(sessionID, host, port, silent), "");
-//}
-
-//bool StreamSession::createStreamSession(
-//        std::auto_ptr<Socket>& newSocket,
-//        const std::string& nickname,
-//        const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
-//        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/)
-//{
-//    const std::string newSessionID = generateSessionID();
-//    const Message::Answer result = createStreamSession(*newSocket, newSessionID, nickname, myDestination, i2pOptions);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        break;
-//    default:
-//        return false;
-//    }
-
-//    nickname_ = nickname;
-//    myDestination_ = result.second;
-//    sessionID_ = newSessionID;
-//    socket_ = newSocket;    // release and copy
-//    i2pOptions_ = i2pOptions;
-//    isGenerated_ = (myDestination == SAM_GENERATE_MY_DESTINATION);
-
-//    return reforwardAll();
-//}
-
-//bool StreamSession::createStreamSession(
-//        const std::string& nickname,
-//        const std::string& SAMHost /*= SAM_DEFAULT_ADDRESS*/,
-//        uint16_t SAMPort /*= SAM_DEFAULT_PORT*/,
-//        const std::string& myDestination /*= SAM_GENERATE_MY_DESTINATION*/,
-//        const std::string& i2pOptions /*= SAM_DEFAULT_I2P_OPTIONS*/,
-//        const std::string& minVer, const std::string &maxVer /*= SAM_DEFAULT_MAX_VER*/)
-//{
-//    std::auto_ptr<Socket> newSocket(new Socket(SAMHost, SAMPort, minVer, maxVer));
-//    return createStreamSession(newSocket, nickname, myDestination, i2pOptions);
-//}
-
-//bool StreamSession::createStreamSession()
-//{
-//    const Socket& currSocket = *socket_;
-//    std::auto_ptr<Socket> newSocket(new Socket(currSocket));
-//    return createStreamSession(newSocket, nickname_, (isGenerated_ ? SAM_GENERATE_MY_DESTINATION : myDestination_), i2pOptions_);
-//}
-
-//bool StreamSession::reforwardAll()
-//{
-//    for (ForwardedStreamsContainer::iterator it = forwardedStreams_.begin(), end = forwardedStreams_.end(); it != end; ++it)
-//    {
-//        std::auto_ptr<Socket> newSocket(new Socket(*socket_));
-//        const Message::Answer result = forward(*newSocket, sessionID_, it->host, it->port, it->silent);
-//        switch(result.first)
-//        {
-//        case Message::OK:
-//            break;
-//        default:
-//            return false;
-//        }
-
-//        delete (it->socket);
-//        it->socket = newSocket.release();
-//    }
-//    return true;
-//}
-
-//std::string StreamSession::namingLookup(const std::string& name)
-//{
-//    const Message::Answer result = namingLookup(*socket_, name);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        return result.second;
-//    case Message::EMPTY_ANSWER:
-//    case Message::CLOSED_SOCKET:
-//        return createStreamSession() ? namingLookup(name) : std::string();
-//    default:
-//        break;
-//    }
-//    return std::string();
-//}
-
-//std::string StreamSession::getMyAddress()
-//{
-////    return namingLookup(SAM_MY_NAME);
-//    return myDestination_.substr(0, I2P_DESTINATION_SIZE);
-//}
-
-//std::pair<const std::string, const std::string> StreamSession::destGenerate()
-//{
-//    const std::pair<const Message::eStatus, std::pair<const std::string, const std::string> > result = destGenerate(*socket_);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        return result.second;
-//    case Message::EMPTY_ANSWER:
-//    case Message::CLOSED_SOCKET:
-//        return createStreamSession() ? destGenerate() : std::pair<const std::string, const std::string>();
-//    default:
-//        break;
-//    }
-//    return std::pair<const std::string, const std::string>();
-//}
-
-//SOCKET StreamSession::accept(bool silent /*= false*/)
-//{
-//    Socket streamSocket(*socket_);
-//    const Message::Answer result = accept(streamSocket, sessionID_, silent);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        return streamSocket.release();
-//    case Message::EMPTY_ANSWER:
-//    case Message::CLOSED_SOCKET:
-//    case Message::INVALID_ID:
-//        return createStreamSession() ? accept(silent) : SAM_INVALID_SOCKET;
-//    default:
-//        break;
-//    }
-//    return SAM_INVALID_SOCKET;
-//}
-
-//SOCKET StreamSession::connect(const std::string& destination, bool silent /*= false*/)
-//{
-//    Socket streamSocket(*socket_);
-//    const Message::Answer result = connect(streamSocket, sessionID_, destination, silent);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        return streamSocket.release();
-//    case Message::EMPTY_ANSWER:
-//    case Message::CLOSED_SOCKET:
-//    case Message::INVALID_ID:
-//        return createStreamSession() ? connect(destination, silent) : SAM_INVALID_SOCKET;
-//    default:
-//        break;
-//    }
-//    return SAM_INVALID_SOCKET;
-//}
-
-//bool StreamSession::forward(const std::string& host, uint16_t port, bool silent /*= false*/)
-//{
-//    std::auto_ptr<Socket> newSocket(new Socket(*socket_));
-//    const Message::Answer result = forward(*newSocket, sessionID_, host, port, silent);
-//    switch(result.first)
-//    {
-//    case Message::OK:
-//        break;
-//    case Message::EMPTY_ANSWER:
-//    case Message::CLOSED_SOCKET:
-//    case Message::INVALID_ID:
-//        return createStreamSession() ? forward(host, port, silent) : false;
-//    default:
-//        return false;
-//    }
-
-//    ForwardedStream fwdStream;
-//    fwdStream.host = host;
-//    fwdStream.port = port;
-//    fwdStream.silent = silent;
-//    fwdStream.socket = newSocket.release();
-
-//    forwardedStreams_.push_back(fwdStream);
-
-//    return true;
-//}
-
-//void StreamSession::stopForwarding(const std::string& host, uint16_t port)
-//{
-//    for (ForwardedStreamsContainer::iterator it = forwardedStreams_.begin(); it != forwardedStreams_.end(); )
-//    {
-//        if (it->port == port && it->host == host)
-//        {
-//            delete (it->socket);
-//            it = forwardedStreams_.erase(it);
-//        }
-//        else
-//            ++it;
-//    }
-//}
-
-//const std::string& StreamSession::getNickname() const
-//{
-//    return nickname_;
-//}
-
-//const std::string& StreamSession::getSessionID() const
-//{
-//    return sessionID_;
-//}
-
-//const std::string& StreamSession::getMyDestination() const
-//{
-//    return myDestination_;
-//}
-
-//const std::string& StreamSession::getHost() const
-//{
-//    return socket_->getHost();
-//}
-
-//uint16_t StreamSession::getPort() const
-//{
-//    return socket_->getPort();
-//}
-
-//const std::string& StreamSession::getMinVer() const
-//{
-//    return socket_->getMinVer();
-//}
-
-//const std::string& StreamSession::getMaxVer() const
-//{
-//    return socket_->getMaxVer();
-//}
-
-//const std::string& StreamSession::getVersion() const
-//{
-//    return socket_->getVersion();
-//}
-
-//const sockaddr_in& StreamSession::getAddress() const
-//{
-//    return socket_->getAddress();
-//}
-
-//bool StreamSession::isDestinationGenerated() const
-//{
-//    return isGenerated_;
-//}
-
-//--------------------------------------------------------------------------------------------------
-
 
 std::string Message::createSAMRequest(const char* format, ...)
 {
