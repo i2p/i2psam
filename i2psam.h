@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 //--------------------------------------------------------------------------------------------------
-// see full documentation at http://www.i2p2.i2p/samv3.html
+// see full documentation about SAM at http://www.i2p2.i2p/samv3.html
 #ifndef I2PSAM_H
 #define I2PSAM_H
 
@@ -213,6 +213,7 @@ class Socket
 public:
     Socket(const std::string& SAMHost, uint16_t SAMPort, const std::string &minVer, const std::string& maxVer);
     Socket(const sockaddr_in& addr, const std::string& minVer, const std::string& maxVer);
+    // explicit because we don't want to create any socket implicity
     explicit Socket(const Socket& rhs); // creates a new socket with the same parameters
     ~Socket();
 
@@ -282,7 +283,7 @@ struct RequestResult
 template<class T>
 struct RequestResult<std::auto_ptr<T> >
 {
-    // a class-helper for resolving a problem with conversion from RequestResult to RequestResult&
+    // a class-helper for resolving a problem with conversion from temporary RequestResult to non-const RequestResult&
     struct RequestResultRef
     {
         bool isOk;
@@ -420,7 +421,8 @@ private:
 
     typedef std::list<ForwardedStream> ForwardedStreamsContainer;
 
-    std::auto_ptr<Socket> socket_;
+//    std::auto_ptr<Socket> socket_;
+    Socket socket_;
     const std::string nickname_;
     const std::string sessionID_;
 //    std::string myDestination_;

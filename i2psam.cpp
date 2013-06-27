@@ -242,7 +242,7 @@ NewStreamSession::NewStreamSession(
         const std::string& i2pOptions  /*= SAM_DEFAULT_I2P_OPTIONS*/,
         const std::string& minVer      /*= SAM_DEFAULT_MIN_VER*/,
         const std::string& maxVer      /*= SAM_DEFAULT_MAX_VER*/)
-    : socket_(new Socket(SAMHost, SAMPort, minVer, maxVer))
+    : socket_(SAMHost, SAMPort, minVer, maxVer)
     , nickname_(nickname)
     , sessionID_(generateSessionID())
 //    , myDestination_(myDestination)
@@ -263,7 +263,7 @@ NewStreamSession::NewStreamSession(NewStreamSession& rhs)
     , isSick_(false)
 {
     rhs.fallSick();
-    rhs.socket_->close();
+    rhs.socket_.close();
     (void)createStreamSession(myDestination_.priv);
 
     for(ForwardedStreamsContainer::const_iterator it = rhs.forwardedStreams_.begin(), end = rhs.forwardedStreams_.end(); it != end; ++it)
@@ -300,16 +300,12 @@ RequestResult<std::auto_ptr<Socket> > NewStreamSession::accept(bool silent)
 {
     typedef RequestResult<std::auto_ptr<Socket> > ResultType;
 
-    std::auto_ptr<Socket> streamSocket(new Socket(*socket_));
+    std::auto_ptr<Socket> streamSocket(new Socket(socket_));
     const Message::eStatus status = accept(*streamSocket, sessionID_, silent);
     switch(status)
     {
     case Message::OK:
-//    {
-//        RequestResult<std::auto_ptr<Socket> > a(streamSocket);
-//        return a;
         return RequestResult<std::auto_ptr<Socket> >(streamSocket);
-//    }
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
@@ -325,7 +321,7 @@ RequestResult<std::auto_ptr<Socket> > NewStreamSession::connect(const std::strin
 {
     typedef RequestResult<std::auto_ptr<Socket> > ResultType;
 
-    std::auto_ptr<Socket> streamSocket(new Socket(*socket_));
+    std::auto_ptr<Socket> streamSocket(new Socket(socket_));
     const Message::eStatus status = connect(*streamSocket, sessionID_, destination, silent);
     switch(status)
     {
@@ -347,7 +343,7 @@ RequestResult<void> NewStreamSession::forward(const std::string& host, uint16_t 
 {
     typedef RequestResult<void> ResultType;
 
-    std::auto_ptr<Socket> newSocket(new Socket(*socket_));
+    std::auto_ptr<Socket> newSocket(new Socket(socket_));
     const Message::eStatus status = forward(*newSocket, sessionID_, host, port, silent);
     switch(status)
     {
@@ -371,7 +367,7 @@ RequestResult<const std::string> NewStreamSession::namingLookup(const std::strin
     typedef RequestResult<const std::string> ResultType;
     typedef Message::Answer<const std::string> AnswerType;
 
-    std::auto_ptr<Socket> newSocket(new Socket(*socket_));
+    std::auto_ptr<Socket> newSocket(new Socket(socket_));
     const AnswerType answer = namingLookup(*newSocket, name);
     switch(answer.status)
     {
@@ -393,7 +389,7 @@ RequestResult<const FullDestination> NewStreamSession::destGenerate() const
     typedef RequestResult<const FullDestination> ResultType;
     typedef Message::Answer<const FullDestination> AnswerType;
 
-    std::auto_ptr<Socket> newSocket(new Socket(*socket_));
+    std::auto_ptr<Socket> newSocket(new Socket(socket_));
     const AnswerType answer = destGenerate(*newSocket);
     switch(answer.status)
     {
@@ -413,7 +409,7 @@ FullDestination NewStreamSession::createStreamSession(const std::string& destina
 {
     typedef Message::Answer<const std::string> AnswerType;
 
-    const AnswerType answer = createStreamSession(*socket_, sessionID_, nickname_, destination, i2pOptions_);
+    const AnswerType answer = createStreamSession(socket_, sessionID_, nickname_, destination, i2pOptions_);
     if (answer.status != Message::OK)
     {
         fallSick();
@@ -561,32 +557,32 @@ bool NewStreamSession::isSick() const
 
 const sockaddr_in& NewStreamSession::getSAMAddress() const
 {
-    return socket_->getAddress();
+    return socket_.getAddress();
 }
 
 const std::string& NewStreamSession::getSAMHost() const
 {
-    return socket_->getHost();
+    return socket_.getHost();
 }
 
 uint16_t NewStreamSession::getSAMPort() const
 {
-    return socket_->getPort();
+    return socket_.getPort();
 }
 
 const std::string& NewStreamSession::getSAMMinVer() const
 {
-    return socket_->getMinVer();
+    return socket_.getMinVer();
 }
 
 const std::string& NewStreamSession::getSAMMaxVer() const
 {
-    return socket_->getMaxVer();
+    return socket_.getMaxVer();
 }
 
 const std::string& NewStreamSession::getSAMVersion() const
 {
-    return socket_->getVersion();
+    return socket_.getVersion();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,11 +606,6 @@ public:
         return *session_;
     }
 
-//        void fallSick() const
-//        {
-//            isSick_ = true;
-//        }
-
 private:
     void heal() const
     {
@@ -626,7 +617,8 @@ private:
     void reborn() const
     {
         std::auto_ptr<NewStreamSession> newSession(new NewStreamSession(*session_));
-        session_ = newSession;
+        if (!newSession->isSick() && session_->isSick())
+            session_ = newSession;
     }
 
     mutable std::auto_ptr<NewStreamSession> session_;
@@ -649,14 +641,14 @@ StreamSessionAdapter::StreamSessionAdapter(
 SOCKET StreamSessionAdapter::accept(bool silent)
 {
     RequestResult<std::auto_ptr<Socket> > result = sessionHolder_->getSession().accept(silent);
-    // call the 'release' function on Socket but not auto_ptr
+    // call Socket::release
     return result.isOk ? result.value->release() : SAM_INVALID_SOCKET;
 }
 
 SOCKET StreamSessionAdapter::connect(const std::string& destination, bool silent)
 {
     RequestResult<std::auto_ptr<Socket> > result = sessionHolder_->getSession().connect(destination, silent);
-    // call the 'release' function on Socket but not auto_ptr
+    // call Socket::release
     return result.isOk ? result.value->release() : SAM_INVALID_SOCKET;
 }
 
@@ -731,7 +723,6 @@ const std::string& StreamSessionAdapter::getOptions() const
 {
     return sessionHolder_->getSession().getOptions();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
