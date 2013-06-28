@@ -300,6 +300,8 @@ struct RequestResult<std::auto_ptr<T> >
     explicit RequestResult(std::auto_ptr<T>& value)
         : isOk(true), value(value) {}
 
+
+    // some C++ magic
     RequestResult(RequestResultRef ref)
         : isOk(ref.isOk), value(ref.value) {}
 
@@ -413,61 +415,45 @@ private:
     static Message::eStatus forward(Socket& socket, const std::string& sessionID, const std::string& host, uint16_t port, bool silent);
 };
 
-class StreamSessionAdapter
-{
-public:
-    StreamSessionAdapter(
-            const std::string& nickname,
-            const std::string& SAMHost       = SAM_DEFAULT_ADDRESS,
-                  uint16_t     SAMPort       = SAM_DEFAULT_PORT,
-            const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
-            const std::string& i2pOptions    = SAM_DEFAULT_I2P_OPTIONS,
-            const std::string& minVer        = SAM_DEFAULT_MIN_VER,
-            const std::string& maxVer        = SAM_DEFAULT_MAX_VER);
+//class StreamSessionAdapter
+//{
+//public:
+//    StreamSessionAdapter(
+//            const std::string& nickname,
+//            const std::string& SAMHost       = SAM_DEFAULT_ADDRESS,
+//                  uint16_t     SAMPort       = SAM_DEFAULT_PORT,
+//            const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
+//            const std::string& i2pOptions    = SAM_DEFAULT_I2P_OPTIONS,
+//            const std::string& minVer        = SAM_DEFAULT_MIN_VER,
+//            const std::string& maxVer        = SAM_DEFAULT_MAX_VER);
 
-    ~StreamSessionAdapter();
+//    ~StreamSessionAdapter();
 
-    SOCKET accept(bool silent);
-    SOCKET connect(const std::string& destination, bool silent);
-    bool forward(const std::string& host, uint16_t port, bool silent);
-    std::string namingLookup(const std::string& name) const;
-    FullDestination destGenerate() const;
+//    SOCKET accept(bool silent);
+//    SOCKET connect(const std::string& destination, bool silent);
+//    bool forward(const std::string& host, uint16_t port, bool silent);
+//    std::string namingLookup(const std::string& name) const;
+//    FullDestination destGenerate() const;
 
-    void stopForwarding(const std::string& host, uint16_t port);
-    void stopForwardingAll();
+//    void stopForwarding(const std::string& host, uint16_t port);
+//    void stopForwardingAll();
 
-    const FullDestination& getMyDestination() const;
+//    const FullDestination& getMyDestination() const;
 
-    const sockaddr_in& getSAMAddress() const;
-    const std::string& getSAMHost() const;
-              uint16_t getSAMPort() const;
-    const std::string& getNickname() const;
-    const std::string& getSAMMinVer() const;
-    const std::string& getSAMMaxVer() const;
-    const std::string& getSAMVersion() const;
-    const std::string& getOptions() const;
+//    const sockaddr_in& getSAMAddress() const;
+//    const std::string& getSAMHost() const;
+//              uint16_t getSAMPort() const;
+//    const std::string& getNickname() const;
+//    const std::string& getSAMMinVer() const;
+//    const std::string& getSAMMaxVer() const;
+//    const std::string& getSAMVersion() const;
+//    const std::string& getOptions() const;
 
-private:
-    class SessionHolder;
+//private:
+//    class SessionHolder;
 
-//    class SessionHolder
-//    {
-//    public:
-//        explicit SessionHolder(std::auto_ptr<NewStreamSession> session);
-//        ~SessionHolder();
-
-//        const NewStreamSession& getSession() const;
-//        NewStreamSession& getSession();
-//    private:
-//        void heal() const;
-//        void reborn() const;
-
-//        mutable std::auto_ptr<NewStreamSession> session_;
-//    };
-
-    std::auto_ptr<SessionHolder> sessionHolder_;
-//    SessionHolder* sessionHolder_;
-};
+//    std::auto_ptr<SessionHolder> sessionHolder_;
+//};
 
 } // namespace SAM
 

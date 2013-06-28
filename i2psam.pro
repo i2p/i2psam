@@ -10,6 +10,8 @@ TARGET = i2psam
 TEMPLATE = lib
 CONFIG += staticlib
 
+QMAKE_CXXFLAGS += -Wall
+
 SOURCES += i2psam.cpp
 
 HEADERS += i2psam.h
