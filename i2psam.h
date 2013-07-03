@@ -71,8 +71,8 @@ public:
     enum SessionStyle
     {
         sssStream,
-        sssDatagram,
-        sssRaw
+        sssDatagram,    // not supported now
+        sssRaw          // not supported now
     };
 
     enum eStatus
@@ -270,12 +270,10 @@ struct RequestResult
     T value;
 
     RequestResult()
-        : isOk(false)
-    {}
+        : isOk(false) {}
 
     explicit RequestResult(const T& value)
-        : isOk(true), value(value)
-    {}
+        : isOk(true), value(value) {}
 };
 
 template<class T>
@@ -327,18 +325,16 @@ struct RequestResult<void>
     bool isOk;
 
     RequestResult()
-        : isOk(false)
-    {}
+        : isOk(false) {}
 
     explicit RequestResult(bool isOk)
-        : isOk(isOk)
-    {}
+        : isOk(isOk) {}
 };
 
-class NewStreamSession
+class StreamSession
 {
 public:
-    NewStreamSession(
+    StreamSession(
             const std::string& nickname,
             const std::string& SAMHost     = SAM_DEFAULT_ADDRESS,
                   uint16_t     SAMPort     = SAM_DEFAULT_PORT,
@@ -346,8 +342,8 @@ public:
             const std::string& i2pOptions  = SAM_DEFAULT_I2P_OPTIONS,
             const std::string& minVer      = SAM_DEFAULT_MIN_VER,
             const std::string& maxVer      = SAM_DEFAULT_MAX_VER);
-    explicit NewStreamSession(NewStreamSession& rhs);
-    ~NewStreamSession();
+    explicit StreamSession(StreamSession& rhs);
+    ~StreamSession();
 
     static std::string generateSessionID();
 
@@ -375,8 +371,8 @@ public:
     bool isSick() const;
 
 private:
-    NewStreamSession(const NewStreamSession& rhs);
-    NewStreamSession& operator=(const NewStreamSession& rhs);
+    StreamSession(const StreamSession& rhs);
+    StreamSession& operator=(const StreamSession& rhs);
 
     struct ForwardedStream
     {
@@ -414,46 +410,6 @@ private:
     static Message::eStatus connect(Socket& socket, const std::string& sessionID, const std::string& destination, bool silent);
     static Message::eStatus forward(Socket& socket, const std::string& sessionID, const std::string& host, uint16_t port, bool silent);
 };
-
-//class StreamSessionAdapter
-//{
-//public:
-//    StreamSessionAdapter(
-//            const std::string& nickname,
-//            const std::string& SAMHost       = SAM_DEFAULT_ADDRESS,
-//                  uint16_t     SAMPort       = SAM_DEFAULT_PORT,
-//            const std::string& myDestination = SAM_GENERATE_MY_DESTINATION,
-//            const std::string& i2pOptions    = SAM_DEFAULT_I2P_OPTIONS,
-//            const std::string& minVer        = SAM_DEFAULT_MIN_VER,
-//            const std::string& maxVer        = SAM_DEFAULT_MAX_VER);
-
-//    ~StreamSessionAdapter();
-
-//    SOCKET accept(bool silent);
-//    SOCKET connect(const std::string& destination, bool silent);
-//    bool forward(const std::string& host, uint16_t port, bool silent);
-//    std::string namingLookup(const std::string& name) const;
-//    FullDestination destGenerate() const;
-
-//    void stopForwarding(const std::string& host, uint16_t port);
-//    void stopForwardingAll();
-
-//    const FullDestination& getMyDestination() const;
-
-//    const sockaddr_in& getSAMAddress() const;
-//    const std::string& getSAMHost() const;
-//              uint16_t getSAMPort() const;
-//    const std::string& getNickname() const;
-//    const std::string& getSAMMinVer() const;
-//    const std::string& getSAMMaxVer() const;
-//    const std::string& getSAMVersion() const;
-//    const std::string& getOptions() const;
-
-//private:
-//    class SessionHolder;
-
-//    std::auto_ptr<SessionHolder> sessionHolder_;
-//};
 
 } // namespace SAM
 
