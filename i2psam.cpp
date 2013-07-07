@@ -13,6 +13,7 @@
 
 #ifndef WIN32
 #include <errno.h>
+#include <unistd.h>
 #endif
 
 #ifndef WIN32
