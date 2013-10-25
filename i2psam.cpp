@@ -310,6 +310,7 @@ RequestResult<std::auto_ptr<Socket> > StreamSession::accept(bool silent)
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
+    case Message::I2P_ERROR:
         fallSick();
         break;
     default:
@@ -331,6 +332,7 @@ RequestResult<std::auto_ptr<Socket> > StreamSession::connect(const std::string& 
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
+    case Message::I2P_ERROR:
         fallSick();
         break;
     default:
@@ -354,6 +356,7 @@ RequestResult<void> StreamSession::forward(const std::string& host, uint16_t por
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
+    case Message::I2P_ERROR:
         fallSick();
         break;
     default:

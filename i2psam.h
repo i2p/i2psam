@@ -22,6 +22,7 @@
 #include <arpa/inet.h>      // for ntohs and htons
 #endif
 
+// TODO: check a possible bug about cast -1 to SOCKET
 #define SAM_INVALID_SOCKET      (-1)
 #define SAM_SOCKET_ERROR        (-1)
 
