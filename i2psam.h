@@ -12,15 +12,18 @@
 #include <memory>
 #include <utility>
 
-#ifdef WIN32
-//#define _WIN32_WINNT 0x0501
-#define WIN32_LEAN_AND_MEAN 1
-#include <winsock2.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>     // for sockaddr_in
-#include <arpa/inet.h>      // for ntohs and htons
-#endif
+//#ifdef WIN32
+////#define _WIN32_WINNT 0x0501
+//#define WIN32_LEAN_AND_MEAN 1
+//#define FD_SETSIZE
+//#include <winsock2.h>
+//#else
+//#include <sys/socket.h>
+//#include <netinet/in.h>     // for sockaddr_in
+//#include <arpa/inet.h>      // for ntohs and htons
+//#endif
+
+#ifndef WIN32
 
 // TODO: check a possible bug about cast -1 to SOCKET
 #define SAM_INVALID_SOCKET      (-1)
@@ -233,6 +236,9 @@ public:
     const sockaddr_in& getAddress() const;
 
 private:
+    struct SocketImpl;
+    std::auto_ptr<SocketImpl> impl_;
+
     SOCKET socket_;
     sockaddr_in servAddr_;
     std::string SAMHost_;
