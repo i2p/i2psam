@@ -10,8 +10,8 @@
 
 CC            = gcc
 CXX           = g++
-CFLAGS        = -m64 -pipe -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
-CXXFLAGS      = -m64 -pipe -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
+CFLAGS        = -pipe -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
+CXXFLAGS      = -pipe -O2 -fPIC -Wall -W -D_REENTRANT $(DEFINES)
 AR            = ar cqs
 RANLIB        = 
 TAR           = tar -cf
