@@ -35,25 +35,25 @@
 #define SAM_DEFAULT_I2P_OPTIONS     ""
 
 #define SAM_NAME_INBOUND_QUANTITY           "inbound.quantity"
-#define SAM_DEFAULT_INBOUND_QUANTITY        2
+#define SAM_DEFAULT_INBOUND_QUANTITY        3 // Three tunnels is default now
 #define SAM_NAME_INBOUND_LENGTH             "inbound.length"
-#define SAM_DEFAULT_INBOUND_LENGTH          2
+#define SAM_DEFAULT_INBOUND_LENGTH          3 // Three jumps is default now
 #define SAM_NAME_INBOUND_LENGTHVARIANCE     "inbound.lengthVariance"
 #define SAM_DEFAULT_INBOUND_LENGTHVARIANCE  0
 #define SAM_NAME_INBOUND_BACKUPQUANTITY     "inbound.backupquantity"
-#define SAM_DEFAULT_INBOUND_BACKUPQUANTITY  0
+#define SAM_DEFAULT_INBOUND_BACKUPQUANTITY  1 // One backup tunnel
 #define SAM_NAME_INBOUND_ALLOWZEROHOP       "inbound.allowzerohop"
 #define SAM_DEFAULT_INBOUND_ALLOWZEROHOP    true
 #define SAM_NAME_INBOUND_IPRESTRICTION      "inbound.iprestriction"
 #define SAM_DEFAULT_INBOUND_IPRESTRICTION   2
 #define SAM_NAME_OUTBOUND_QUANTITY          "outbound.quantity"
-#define SAM_DEFAULT_OUTBOUND_QUANTITY       2
+#define SAM_DEFAULT_OUTBOUND_QUANTITY       3
 #define SAM_NAME_OUTBOUND_LENGTH            "outbound.length"
-#define SAM_DEFAULT_OUTBOUND_LENGTH         2
+#define SAM_DEFAULT_OUTBOUND_LENGTH         3
 #define SAM_NAME_OUTBOUND_LENGTHVARIANCE    "outbound.lengthvariance"
 #define SAM_DEFAULT_OUTBOUND_LENGTHVARIANCE 0
 #define SAM_NAME_OUTBOUND_BACKUPQUANTITY    "outbound.backupquantity"
-#define SAM_DEFAULT_OUTBOUND_BACKUPQUANTITY 0
+#define SAM_DEFAULT_OUTBOUND_BACKUPQUANTITY 1
 #define SAM_NAME_OUTBOUND_ALLOWZEROHOP      "outbound.allowzerohop"
 #define SAM_DEFAULT_OUTBOUND_ALLOWZEROHOP   true
 #define SAM_NAME_OUTBOUND_IPRESTRICTION     "outbound.iprestriction"
