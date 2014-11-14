@@ -65,10 +65,6 @@ Socket::Socket(const std::string& SAMHost, uint16_t SAMPort, const std::string& 
     servAddr_.sin_family = AF_INET;
     servAddr_.sin_addr.s_addr = inet_addr(SAMHost.c_str());
     servAddr_.sin_port = htons(SAMPort);
-
-    init();
-    if (isOk())
-        handshake();
 }
 
 Socket::Socket(const sockaddr_in& addr, const std::string &minVer, const std::string& maxVer)
@@ -105,6 +101,13 @@ Socket::~Socket()
     if (--instances_ == 0)
         freeWSA();
 #endif
+}
+
+void Socket::bootstrapI2P()
+{
+    init();
+    if (isOk())
+        handshake();
 }
 
 void Socket::init()

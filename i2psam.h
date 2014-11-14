@@ -217,6 +217,8 @@ public:
     explicit Socket(const Socket& rhs); // creates a new socket with the same parameters
     ~Socket();
 
+    void bootstrapI2P();
+
     void write(const std::string& msg);
     std::string read();
     SOCKET release();
