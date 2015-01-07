@@ -14,8 +14,6 @@
 #include <utility>
 
 #ifdef WIN32
-//#define _WIN32_WINNT 0x0501
-#define WIN32_LEAN_AND_MEAN 1
 #include <winsock2.h>
 #else
 #include <sys/socket.h>
@@ -41,23 +39,23 @@
 #define SAM_DEFAULT_INBOUND_LENGTH          3 // Three jumps is default now
 #define SAM_NAME_INBOUND_LENGTHVARIANCE     "inbound.lengthVariance"
 #define SAM_DEFAULT_INBOUND_LENGTHVARIANCE  0
-#define SAM_NAME_INBOUND_BACKUPQUANTITY     "inbound.backupquantity"
+#define SAM_NAME_INBOUND_BACKUPQUANTITY     "inbound.backupQuantity"
 #define SAM_DEFAULT_INBOUND_BACKUPQUANTITY  1 // One backup tunnel
-#define SAM_NAME_INBOUND_ALLOWZEROHOP       "inbound.allowzerohop"
+#define SAM_NAME_INBOUND_ALLOWZEROHOP       "inbound.allowZeroHop"
 #define SAM_DEFAULT_INBOUND_ALLOWZEROHOP    true
-#define SAM_NAME_INBOUND_IPRESTRICTION      "inbound.iprestriction"
+#define SAM_NAME_INBOUND_IPRESTRICTION      "inbound.IPRestriction"
 #define SAM_DEFAULT_INBOUND_IPRESTRICTION   2
 #define SAM_NAME_OUTBOUND_QUANTITY          "outbound.quantity"
 #define SAM_DEFAULT_OUTBOUND_QUANTITY       3
 #define SAM_NAME_OUTBOUND_LENGTH            "outbound.length"
 #define SAM_DEFAULT_OUTBOUND_LENGTH         3
-#define SAM_NAME_OUTBOUND_LENGTHVARIANCE    "outbound.lengthvariance"
+#define SAM_NAME_OUTBOUND_LENGTHVARIANCE    "outbound.lengthVariance"
 #define SAM_DEFAULT_OUTBOUND_LENGTHVARIANCE 0
-#define SAM_NAME_OUTBOUND_BACKUPQUANTITY    "outbound.backupquantity"
+#define SAM_NAME_OUTBOUND_BACKUPQUANTITY    "outbound.backupQuantity"
 #define SAM_DEFAULT_OUTBOUND_BACKUPQUANTITY 1
-#define SAM_NAME_OUTBOUND_ALLOWZEROHOP      "outbound.allowzerohop"
+#define SAM_NAME_OUTBOUND_ALLOWZEROHOP      "outbound.allowZeroHop"
 #define SAM_DEFAULT_OUTBOUND_ALLOWZEROHOP   true
-#define SAM_NAME_OUTBOUND_IPRESTRICTION     "outbound.iprestriction"
+#define SAM_NAME_OUTBOUND_IPRESTRICTION     "outbound.IPRestriction"
 #define SAM_DEFAULT_OUTBOUND_IPRESTRICTION  2
 #define SAM_NAME_OUTBOUND_PRIORITY          "outbound.priority"
 #define SAM_DEFAULT_OUTBOUND_PRIORITY       0
@@ -65,6 +63,9 @@
 namespace SAM
 {
 
+// ToDo: GR Notes: Seems this is a very bad idea, SOCKET should be defined as per the compilers standard library definition is set to, the
+// rest of the coin code assumes that is what this definition is using, and 99.9% of the time it's probably true 'int' may not however be
+//  the correct choice for every build envirnment and research needs to be done to get this module changed to insure that is the case.
 typedef int SOCKET;
 
 class Message

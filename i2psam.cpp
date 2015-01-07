@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2014 The Anoncoin Core developers
+// Copyright (c) 2013-2015 The Anoncoin Core developers
 // Copyright (c) 2012-2013 giv
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -30,6 +30,9 @@
 #define SAM_BUFSIZE         65536
 #define I2P_DESTINATION_SIZE 516
 
+// Define this, if you want more of the original standard output diagnostics
+// #define DEBUG_ON_STDOUT
+
 namespace SAM
 {
 
@@ -42,11 +45,13 @@ static void print_error(const std::string& err)
     //
     //       After thinking about this some, the i2pwrapper is isolated from all this socket stuff, perhaps we could report to the log file from there
     //       if we simple pipe these messages somewhere else that std::cout, and have the i2pwrapper pick them up and report them for us.  Just an idea.
+// #ifdef DEBUG_ON_STDOUT
 #ifdef WIN32
     std::cout << err << "(" << WSAGetLastError() << ")" << std::endl;
 #else
     std::cout << err << "(" << errno << ")" << std::endl;
 #endif
+// #endif // DEBUG_ON_STDOUT
 }
 
 #ifdef WIN32
@@ -143,8 +148,7 @@ SOCKET Socket::release()
     return temp;
 }
 
-// ToDo: If the handshake works, I'm thinking we must be talking to a valid I2P router.  If that's the case, we should report the version response in the logfile
-//       ...and make sure our coin software understands that is also the case...  GR Note: Haven't looked into it.
+// If the handshake works, we're talking to a valid I2P router.
 void Socket::handshake()
 {
     this->write(Message::hello(minVer_, maxVer_));
@@ -163,7 +167,9 @@ void Socket::write(const std::string& msg)
         print_error("Failed to send data because socket is closed");
         return;
     }
+#ifdef DEBUG_ON_STDOUT
     std::cout << "Send: " << msg << std::endl;
+#endif
     ssize_t sentBytes = send(socket_, msg.c_str(), msg.length(), 0);
     if (sentBytes == SAM_SOCKET_ERROR)
     {
@@ -200,7 +206,9 @@ std::string Socket::read()
         close();
         print_error("Socket was closed");
     }
+#ifdef DEBUG_ON_STDOUT
     std::cout << "Reply: " << buffer << std::endl;
+#endif
     return std::string(buffer);
 }
 
@@ -264,7 +272,9 @@ StreamSession::StreamSession(
     , isSick_(false)
 {
     myDestination_ = createStreamSession(destination);
+#ifdef DEBUG_ON_STDOUT
     std::cout << "Created a brand new SAM session (" << sessionID_ << ")" << std::endl;
+#endif
 }
 
 StreamSession::StreamSession(StreamSession& rhs)
@@ -282,13 +292,17 @@ StreamSession::StreamSession(StreamSession& rhs)
     for(ForwardedStreamsContainer::const_iterator it = rhs.forwardedStreams_.begin(), end = rhs.forwardedStreams_.end(); it != end; ++it)
         forward(it->host, it->port, it->silent);
 
+// #ifdef DEBUG_ON_STDOUT
     std::cout << "Created a new SAM session (" << sessionID_ << ")  from another (" << rhs.sessionID_ << ")" << std::endl;
+// #endif
 }
 
 StreamSession::~StreamSession()
 {
     stopForwardingAll();
+#ifdef DEBUG_ON_STDOUT
     std::cout << "Closing SAM session (" << sessionID_ << ") ..." << std::endl;
+#endif
 }
 
 /*static*/
