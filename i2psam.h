@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2014 The Anoncoin Core developers
+// Copyright (c) 2013-2015 The Anoncoin Core developers
 // Copyright (c) 2012-2013 giv
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -7,23 +7,16 @@
 #ifndef I2PSAM_H
 #define I2PSAM_H
 
+#if defined(HAVE_CONFIG_H)
+#include "config/anoncoin-config.h"
+#endif
+#include "compat.h"
+
 #include <string>
 #include <list>
 #include <stdint.h>
 #include <memory>
 #include <utility>
-
-#ifdef WIN32
-#include <winsock2.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>     // for sockaddr_in
-#include <arpa/inet.h>      // for ntohs and htons
-#endif
-
-// TODO: check a possible bug about cast -1 to SOCKET
-#define SAM_INVALID_SOCKET      (-1)
-#define SAM_SOCKET_ERROR        (-1)
 
 #define SAM_DEFAULT_ADDRESS         "127.0.0.1"
 #define SAM_DEFAULT_PORT            7656
@@ -63,10 +56,7 @@
 namespace SAM
 {
 
-// ToDo: GR Notes: Seems this is a very bad idea, SOCKET should be defined as per the compilers standard library definition is set to, the
-// rest of the coin code assumes that is what this definition is using, and 99.9% of the time it's probably true 'int' may not however be
-//  the correct choice for every build envirnment and research needs to be done to get this module changed to insure that is the case.
-typedef int SOCKET;
+typedef u_int SOCKET;
 
 class Message
 {
@@ -210,14 +200,14 @@ private:
     static std::string createSAMRequest(const char* format, ...);
 };
 
-class Socket
+class I2pSocket
 {
 public:
-    Socket(const std::string& SAMHost, uint16_t SAMPort, const std::string &minVer, const std::string& maxVer);
-    Socket(const sockaddr_in& addr, const std::string& minVer, const std::string& maxVer);
+    I2pSocket(const std::string& SAMHost, uint16_t SAMPort, const std::string &minVer, const std::string& maxVer);
+    I2pSocket(const sockaddr_in& addr, const std::string& minVer, const std::string& maxVer);
     // explicit because we don't want to create any socket implicity
-    explicit Socket(const Socket& rhs); // creates a new socket with the same parameters
-    ~Socket();
+    explicit I2pSocket(const I2pSocket& rhs); // creates a new socket with the same parameters
+    ~I2pSocket();
 
     void bootstrapI2P();
 
@@ -254,7 +244,7 @@ private:
     void handshake();
     void init();
 
-    Socket& operator=(const Socket&);
+    I2pSocket& operator=(const I2pSocket&);
 };
 
 struct FullDestination
@@ -352,8 +342,8 @@ public:
 
     static std::string generateSessionID();
 
-    RequestResult<std::auto_ptr<Socket> > accept(bool silent);
-    RequestResult<std::auto_ptr<Socket> > connect(const std::string& destination, bool silent);
+    RequestResult<std::auto_ptr<I2pSocket> > accept(bool silent);
+    RequestResult<std::auto_ptr<I2pSocket> > connect(const std::string& destination, bool silent);
     RequestResult<void> forward(const std::string& host, uint16_t port, bool silent);
     RequestResult<const std::string> namingLookup(const std::string& name) const;
     RequestResult<const FullDestination> destGenerate() const;
@@ -381,18 +371,18 @@ private:
 
     struct ForwardedStream
     {
-        Socket* socket;
+        I2pSocket* socket;
         std::string host;
         uint16_t port;
         bool silent;
 
-        ForwardedStream(Socket* socket, const std::string& host, uint16_t port, bool silent)
+        ForwardedStream(I2pSocket* socket, const std::string& host, uint16_t port, bool silent)
             : socket(socket), host(host), port(port), silent(silent) {}
     };
 
     typedef std::list<ForwardedStream> ForwardedStreamsContainer;
 
-    Socket socket_;
+    I2pSocket socket_;
     const std::string nickname_;
     const std::string sessionID_;
     FullDestination myDestination_;
@@ -403,17 +393,17 @@ private:
     void fallSick() const;
     FullDestination createStreamSession(const std::string &destination);
 
-    static Message::Answer<const std::string> rawRequest(Socket& socket, const std::string& requestStr);
-    static Message::Answer<const std::string> request(Socket& socket, const std::string& requestStr, const std::string& keyOnSuccess);
-    static Message::eStatus request(Socket& socket, const std::string& requestStr);
+    static Message::Answer<const std::string> rawRequest(I2pSocket& socket, const std::string& requestStr);
+    static Message::Answer<const std::string> request(I2pSocket& socket, const std::string& requestStr, const std::string& keyOnSuccess);
+    static Message::eStatus request(I2pSocket& socket, const std::string& requestStr);
     // commands
-    static Message::Answer<const std::string> createStreamSession(Socket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options);
-    static Message::Answer<const std::string> namingLookup(Socket& socket, const std::string& name);
-    static Message::Answer<const FullDestination> destGenerate(Socket& socket);
+    static Message::Answer<const std::string> createStreamSession(I2pSocket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options);
+    static Message::Answer<const std::string> namingLookup(I2pSocket& socket, const std::string& name);
+    static Message::Answer<const FullDestination> destGenerate(I2pSocket& socket);
 
-    static Message::eStatus accept(Socket& socket, const std::string& sessionID, bool silent);
-    static Message::eStatus connect(Socket& socket, const std::string& sessionID, const std::string& destination, bool silent);
-    static Message::eStatus forward(Socket& socket, const std::string& sessionID, const std::string& host, uint16_t port, bool silent);
+    static Message::eStatus accept(I2pSocket& socket, const std::string& sessionID, bool silent);
+    static Message::eStatus connect(I2pSocket& socket, const std::string& sessionID, const std::string& destination, bool silent);
+    static Message::eStatus forward(I2pSocket& socket, const std::string& sessionID, const std::string& host, uint16_t port, bool silent);
 };
 
 } // namespace SAM
