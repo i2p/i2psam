@@ -199,9 +199,14 @@ std::string I2pSocket::read()
 
 void I2pSocket::close()
 {
-    if (socket_ != INVALID_SOCKET)
+    if (socket_ != INVALID_SOCKET) {
+#ifdef WIN32
         ::closesocket(socket_);
-    socket_ = INVALID_SOCKET;
+#else
+        ::close(socket_);
+#endif
+        socket_ = INVALID_SOCKET;
+    }
 }
 
 bool I2pSocket::isOk() const
