@@ -7,5 +7,9 @@ TARGET=libi2psam.a
 $(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
 
+LOADLIBES=-L./ -li2psam
+
+eepget: eepget.cpp $(TARGET)
+
 clean:
-	$(RM) $(TARGET) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) eepget
