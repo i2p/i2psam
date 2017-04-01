@@ -1,7 +1,8 @@
+// Copyright (c) 2017 The I2P Project
 // Copyright (c) 2013-2015 The Anoncoin Core developers
 // Copyright (c) 2012-2013 giv
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// Distributed under the MIT software license, see the accompanying
+// file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 //--------------------------------------------------------------------------------------------------
 
 #include "i2psam.h"
