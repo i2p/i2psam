@@ -52,8 +52,8 @@ void I2pSocket::freeWSA()
 }
 #endif
 
-I2pSocket::I2pSocket(const std::string& SAMHost, uint16_t SAMPort, const std::string& minVer, const std::string &maxVer)
-    : socket_(INVALID_SOCKET), SAMHost_(SAMHost), SAMPort_(SAMPort), minVer_(minVer), maxVer_(maxVer)
+I2pSocket::I2pSocket(const std::string& SAMHost, uint16_t SAMPort)
+    : socket_(INVALID_SOCKET), SAMHost_(SAMHost), SAMPort_(SAMPort)
 {
 #ifdef WIN32
     if (instances_++ == 0)
@@ -68,8 +68,8 @@ I2pSocket::I2pSocket(const std::string& SAMHost, uint16_t SAMPort, const std::st
     bootstrapI2P();
 }
 
-I2pSocket::I2pSocket(const sockaddr_in& addr, const std::string &minVer, const std::string& maxVer)
-    : socket_(INVALID_SOCKET), servAddr_(addr), minVer_(minVer), maxVer_(maxVer)
+I2pSocket::I2pSocket(const sockaddr_in& addr)
+    : socket_(INVALID_SOCKET), servAddr_(addr)
 {
 #ifdef WIN32
     if (instances_++ == 0)
@@ -79,7 +79,7 @@ I2pSocket::I2pSocket(const sockaddr_in& addr, const std::string &minVer, const s
 }
 
 I2pSocket::I2pSocket(const I2pSocket& rhs)
-    : socket_(INVALID_SOCKET), servAddr_(rhs.servAddr_), minVer_(rhs.minVer_), maxVer_(rhs.maxVer_)
+    : socket_(INVALID_SOCKET), servAddr_(rhs.servAddr_)
 {
 #ifdef WIN32
     if (instances_++ == 0)
@@ -228,16 +228,6 @@ const std::string& I2pSocket::getVersion() const
     return version_;
 }
 
-const std::string& I2pSocket::getMinVer() const
-{
-    return minVer_;
-}
-
-const std::string& I2pSocket::getMaxVer() const
-{
-    return maxVer_;
-}
-
 const sockaddr_in& I2pSocket::getAddress() const
 {
     return servAddr_;
@@ -251,10 +241,8 @@ StreamSession::StreamSession(
         const std::string& SAMHost     /*= SAM_DEFAULT_ADDRESS*/,
               uint16_t     SAMPort     /*= SAM_DEFAULT_PORT*/,
         const std::string& destination /*= SAM_GENERATE_MY_DESTINATION*/,
-        const std::string& i2pOptions  /*= SAM_DEFAULT_I2P_OPTIONS*/,
-        const std::string& minVer      /*= SAM_DEFAULT_MIN_VER*/,
-        const std::string& maxVer      /*= SAM_DEFAULT_MAX_VER*/)
-    : socket_(SAMHost, SAMPort, minVer, maxVer)
+        const std::string& i2pOptions  /*= SAM_DEFAULT_I2P_OPTIONS*/)
+    : socket_(SAMHost, SAMPort)
     , nickname_(nickname)
     , sessionID_(generateSessionID())
     , i2pOptions_(i2pOptions)
@@ -605,22 +593,6 @@ uint16_t StreamSession::getSAMPort() const
     std::cout << "getSAMPort: " << socket_.getPort() << std::endl;
 #endif // DEBUG_ON_STDOUT
     return socket_.getPort();
-}
-
-const std::string& StreamSession::getSAMMinVer() const
-{
-#ifdef DEBUG_ON_STDOUT
-    std::cout << "getSAMMinVer: " << socket_.getMinVer() << std::endl;
-#endif // DEBUG_ON_STDOUT
-    return socket_.getMinVer();
-}
-
-const std::string& StreamSession::getSAMMaxVer() const
-{
-#ifdef DEBUG_ON_STDOUT
-    std::cout << "getSAMMaxVer: " << socket_.getMaxVer() << std::endl;
-#endif // DEBUG_ON_STDOUT
-    return socket_.getMaxVer();
 }
 
 const std::string& StreamSession::getSAMVersion() const

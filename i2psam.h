@@ -18,8 +18,6 @@
 
 #define SAM_DEFAULT_ADDRESS         "127.0.0.1"
 #define SAM_DEFAULT_PORT            7656
-#define SAM_DEFAULT_MIN_VER         "3.0"
-#define SAM_DEFAULT_MAX_VER         "3.0"
 #define SAM_GENERATE_MY_DESTINATION "TRANSIENT"
 #define SAM_MY_NAME                 "ME"
 #define SAM_DEFAULT_I2P_OPTIONS     ""
@@ -201,8 +199,8 @@ private:
 class I2pSocket
 {
 public:
-    I2pSocket(const std::string& SAMHost, uint16_t SAMPort, const std::string &minVer, const std::string& maxVer);
-    I2pSocket(const sockaddr_in& addr, const std::string& minVer, const std::string& maxVer);
+    I2pSocket(const std::string& SAMHost, uint16_t SAMPort);
+    I2pSocket(const sockaddr_in& addr);
     // explicit because we don't want to create any socket implicity
     explicit I2pSocket(const I2pSocket& rhs); // creates a new socket with the same parameters
     ~I2pSocket();
@@ -219,8 +217,6 @@ public:
     const std::string& getVersion() const;
     const std::string& getHost() const;
     uint16_t getPort() const;
-    const std::string& getMinVer() const;
-    const std::string& getMaxVer() const;
 
     const sockaddr_in& getAddress() const;
 
@@ -229,8 +225,8 @@ private:
     sockaddr_in servAddr_;
     std::string SAMHost_;
     uint16_t SAMPort_;
-    const std::string minVer_;
-    const std::string maxVer_;
+    const std::string minVer_ = "3.0";
+    const std::string maxVer_ = "3.0";
     std::string version_;
 
 #ifdef WIN32
@@ -332,9 +328,7 @@ public:
             const std::string& SAMHost     = SAM_DEFAULT_ADDRESS,
                   uint16_t     SAMPort     = SAM_DEFAULT_PORT,
             const std::string& destination = SAM_GENERATE_MY_DESTINATION,
-            const std::string& i2pOptions  = SAM_DEFAULT_I2P_OPTIONS,
-            const std::string& minVer      = SAM_DEFAULT_MIN_VER,
-            const std::string& maxVer      = SAM_DEFAULT_MAX_VER);
+            const std::string& i2pOptions  = SAM_DEFAULT_I2P_OPTIONS);
     explicit StreamSession(StreamSession& rhs);
     ~StreamSession();
 
