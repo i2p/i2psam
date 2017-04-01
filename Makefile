@@ -1,4 +1,4 @@
-CXXFLAGS=-Werror -std=c++11
+CXXFLAGS=-Werror -std=c++11 -g
 
 SRCS=i2psam.cpp
 OBJS=$(SRCS:.cpp=.o)
