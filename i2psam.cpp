@@ -317,16 +317,16 @@ std::string StreamSession::generateSessionID()
     return result;
 }
 
-RequestResult<std::auto_ptr<I2pSocket> > StreamSession::accept(bool silent)
+RequestResult<std::unique_ptr<I2pSocket> > StreamSession::accept(bool silent)
 {
-    typedef RequestResult<std::auto_ptr<I2pSocket> > ResultType;
+    typedef RequestResult<std::unique_ptr<I2pSocket> > ResultType;
 
-    std::auto_ptr<I2pSocket> streamSocket(new I2pSocket(socket_));
+    std::unique_ptr<I2pSocket> streamSocket(new I2pSocket(socket_));
     const Message::eStatus status = accept(*streamSocket, sessionID_, silent);
     switch(status)
     {
     case Message::OK:
-        return RequestResult<std::auto_ptr<I2pSocket> >(streamSocket);
+        return ResultType(std::move(streamSocket));
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
@@ -339,16 +339,16 @@ RequestResult<std::auto_ptr<I2pSocket> > StreamSession::accept(bool silent)
     return ResultType();
 }
 
-RequestResult<std::auto_ptr<I2pSocket> > StreamSession::connect(const std::string& destination, bool silent)
+RequestResult<std::unique_ptr<I2pSocket> > StreamSession::connect(const std::string& destination, bool silent)
 {
-    typedef RequestResult<std::auto_ptr<I2pSocket> > ResultType;
+    typedef RequestResult<std::unique_ptr<I2pSocket> > ResultType;
 
-    std::auto_ptr<I2pSocket> streamSocket(new I2pSocket(socket_));
+    std::unique_ptr<I2pSocket> streamSocket(new I2pSocket(socket_));
     const Message::eStatus status = connect(*streamSocket, sessionID_, destination, silent);
     switch(status)
     {
     case Message::OK:
-        return ResultType(streamSocket);
+        return ResultType(std::move(streamSocket));
     case Message::EMPTY_ANSWER:
     case Message::CLOSED_SOCKET:
     case Message::INVALID_ID:
@@ -365,7 +365,7 @@ RequestResult<void> StreamSession::forward(const std::string& host, uint16_t por
 {
     typedef RequestResult<void> ResultType;
 
-    std::auto_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
+    std::unique_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
     const Message::eStatus status = forward(*newSocket, sessionID_, host, port, silent);
     switch(status)
     {
@@ -390,7 +390,7 @@ RequestResult<const std::string> StreamSession::namingLookup(const std::string& 
     typedef RequestResult<const std::string> ResultType;
     typedef Message::Answer<const std::string> AnswerType;
 
-    std::auto_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
+    std::unique_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
     const AnswerType answer = namingLookup(*newSocket, name);
     switch(answer.status)
     {
@@ -411,7 +411,7 @@ RequestResult<const FullDestination> StreamSession::destGenerate() const
     typedef RequestResult<const FullDestination> ResultType;
     typedef Message::Answer<const FullDestination> AnswerType;
 
-    std::auto_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
+    std::unique_ptr<I2pSocket> newSocket(new I2pSocket(socket_));
     const AnswerType answer = destGenerate(*newSocket);
     switch(answer.status)
     {

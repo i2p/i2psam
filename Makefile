@@ -1,3 +1,5 @@
+CXXFLAGS=-Werror -std=c++11
+
 SRCS=i2psam.cpp
 OBJS=$(SRCS:.cpp=.o)
 TARGET=libi2psam.a

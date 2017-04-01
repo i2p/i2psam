@@ -270,7 +270,7 @@ struct RequestResult
 };
 
 template<class T>
-struct RequestResult<std::auto_ptr<T> >
+struct RequestResult<std::unique_ptr<T> >
 {
     // a class-helper for resolving a problem with conversion from temporary RequestResult to non-const RequestResult&
     struct RequestResultRef
@@ -283,13 +283,13 @@ struct RequestResult<std::auto_ptr<T> >
     };
 
     bool isOk;
-    std::auto_ptr<T> value;
+    std::unique_ptr<T> value;
 
     RequestResult()
         : isOk(false) {}
 
-    explicit RequestResult(std::auto_ptr<T>& value)
-        : isOk(true), value(value) {}
+    explicit RequestResult(std::unique_ptr<T>&& value)
+        : isOk(true), value(std::move(value)) {}
 
 
     // some C++ magic
@@ -340,8 +340,8 @@ public:
 
     static std::string generateSessionID();
 
-    RequestResult<std::auto_ptr<I2pSocket> > accept(bool silent);
-    RequestResult<std::auto_ptr<I2pSocket> > connect(const std::string& destination, bool silent);
+    RequestResult<std::unique_ptr<I2pSocket> > accept(bool silent);
+    RequestResult<std::unique_ptr<I2pSocket> > connect(const std::string& destination, bool silent);
     RequestResult<void> forward(const std::string& host, uint16_t port, bool silent);
     RequestResult<const std::string> namingLookup(const std::string& name) const;
     RequestResult<const FullDestination> destGenerate() const;
