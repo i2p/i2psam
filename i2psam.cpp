@@ -6,8 +6,6 @@
 //--------------------------------------------------------------------------------------------------
 
 #include "i2psam.h"
-// Anoncoin-config.h has been loaded...
-// compat.h has now been loaded as well
 
 #include <iostream>
 #include <stdio.h>

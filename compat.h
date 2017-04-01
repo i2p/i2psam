@@ -4,12 +4,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ANONCOIN_COMPAT_H
-#define ANONCOIN_COMPAT_H
-
-#if defined(HAVE_CONFIG_H)
-#include "config/anoncoin-config.h"
-#endif
+#ifndef I2PSAM_COMPAT_H
+#define I2PSAM_COMPAT_H
 
 #ifdef WIN32
 #ifdef _WIN32_WINNT
@@ -91,4 +87,4 @@ typedef u_int SOCKET;
 
 size_t strnlen_int( const char *start, size_t max_len);
 
-#endif // ANONCOIN_COMPAT_H
+#endif // I2PSAM_COMPAT_H
