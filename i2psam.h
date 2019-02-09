@@ -21,6 +21,7 @@
 #define SAM_GENERATE_MY_DESTINATION "TRANSIENT"
 #define SAM_MY_NAME                 "ME"
 #define SAM_DEFAULT_I2P_OPTIONS     ""
+#define SAM_SIGNATURE_TYPE "ECDSA_SHA256_P256"
 
 #define SAM_NAME_INBOUND_QUANTITY           "inbound.quantity"
 #define SAM_DEFAULT_INBOUND_QUANTITY        3 // Three tunnels is default now
@@ -182,7 +183,9 @@ public:
     };
 
     static std::string hello(const std::string& minVer, const std::string& maxVer);
-    static std::string sessionCreate(SessionStyle style, const std::string& sessionID, const std::string& nickname, const std::string& destination = SAM_GENERATE_MY_DESTINATION, const std::string& options = "");
+    static std::string sessionCreate(SessionStyle style, const std::string& sessionID,
+                                      const std::string& nickname, const std::string& destination = SAM_GENERATE_MY_DESTINATION,
+                                      const std::string& options = "", const std::string& signatureType = SAM_SIGNATURE_TYPE);
     static std::string streamAccept(const std::string& sessionID, bool silent = false);
     static std::string streamConnect(const std::string& sessionID, const std::string& destination, bool silent = false);
     static std::string streamForward(const std::string& sessionID, const std::string& host, uint16_t port, bool silent = false);
@@ -328,7 +331,8 @@ public:
             const std::string& SAMHost     = SAM_DEFAULT_ADDRESS,
                   uint16_t     SAMPort     = SAM_DEFAULT_PORT,
             const std::string& destination = SAM_GENERATE_MY_DESTINATION,
-            const std::string& i2pOptions  = SAM_DEFAULT_I2P_OPTIONS);
+            const std::string& i2pOptions  = SAM_DEFAULT_I2P_OPTIONS,
+            const std::string& signatureType = SAM_SIGNATURE_TYPE);
     explicit StreamSession(StreamSession& rhs);
     ~StreamSession();
 
@@ -389,7 +393,7 @@ private:
     static Message::Answer<const std::string> request(I2pSocket& socket, const std::string& requestStr, const std::string& keyOnSuccess);
     static Message::eStatus request(I2pSocket& socket, const std::string& requestStr);
     // commands
-    static Message::Answer<const std::string> createStreamSession(I2pSocket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options);
+    static Message::Answer<const std::string> createStreamSession(I2pSocket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options, const std::string& signatureType);
     static Message::Answer<const std::string> namingLookup(I2pSocket& socket, const std::string& name);
     static Message::Answer<const FullDestination> destGenerate(I2pSocket& socket);
 

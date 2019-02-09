@@ -241,7 +241,8 @@ StreamSession::StreamSession(
         const std::string& SAMHost     /*= SAM_DEFAULT_ADDRESS*/,
               uint16_t     SAMPort     /*= SAM_DEFAULT_PORT*/,
         const std::string& destination /*= SAM_GENERATE_MY_DESTINATION*/,
-        const std::string& i2pOptions  /*= SAM_DEFAULT_I2P_OPTIONS*/)
+        const std::string& i2pOptions  /*= SAM_DEFAULT_I2P_OPTIONS*/,
+        const std::string& signatureType /*= SAM_SIGNATURE_TYPE */ )
     : socket_(SAMHost, SAMPort)
     , nickname_(nickname)
     , sessionID_(generateSessionID())
@@ -419,7 +420,7 @@ FullDestination StreamSession::createStreamSession(const std::string& destinatio
 {
     typedef Message::Answer<const std::string> AnswerType;
 
-    const AnswerType answer = createStreamSession(socket_, sessionID_, nickname_, destination, i2pOptions_);
+    const AnswerType answer = createStreamSession(socket_, sessionID_, nickname_, destination, i2pOptions_, SAM_SIGNATURE_TYPE);
     if (answer.status != Message::OK)
     {
         fallSick();
@@ -486,9 +487,9 @@ Message::eStatus StreamSession::request(I2pSocket& socket, const std::string& re
 }
 
 /*static*/
-Message::Answer<const std::string> StreamSession::createStreamSession(I2pSocket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options)
+Message::Answer<const std::string> StreamSession::createStreamSession(I2pSocket& socket, const std::string& sessionID, const std::string& nickname, const std::string& destination, const std::string& options, const std::string& signatureType)
 {
-    return request(socket, Message::sessionCreate(Message::sssStream, sessionID, nickname, destination, options), "DESTINATION");
+    return request(socket, Message::sessionCreate(Message::sssStream, sessionID, nickname, destination, options, signatureType), "DESTINATION");
 }
 
 /*static*/
@@ -649,7 +650,7 @@ std::string Message::hello(const std::string &minVer, const std::string &maxVer)
     return createSAMRequest(helloFormat, minVer.c_str(), maxVer.c_str());
 }
 
-std::string Message::sessionCreate(SessionStyle style, const std::string& sessionID, const std::string& nickname, const std::string& destination /*= SAM_GENERATE_MY_DESTINATION*/, const std::string& options /*= ""*/)
+std::string Message::sessionCreate(SessionStyle style, const std::string& sessionID, const std::string& nickname, const std::string& destination /*= SAM_GENERATE_MY_DESTINATION*/, const std::string& options /*= ""*/, const std::string& signatureType /*= SAM_SIGNATURE_TYPE*/)
 {
 ///////////////////////////////////////////////////////////
 //
@@ -673,8 +674,8 @@ std::string Message::sessionCreate(SessionStyle style, const std::string& sessio
     case sssRaw:      sessionStyle = "RAW";      break;
     }
 
-    static const char* sessionCreateFormat = "SESSION CREATE STYLE=%s ID=%s DESTINATION=%s inbound.nickname=%s %s\n";  // we add inbound.nickname option
-    return createSAMRequest(sessionCreateFormat, sessionStyle.c_str(), sessionID.c_str(), destination.c_str(), nickname.c_str(), options.c_str());
+    static const char* sessionCreateFormat = "SESSION CREATE STYLE=%s ID=%s DESTINATION=%s SIGNATURE_TYPE=%s inbound.nickname=%s %s\n";  // we add inbound.nickname option
+    return createSAMRequest(sessionCreateFormat, sessionStyle.c_str(), sessionID.c_str(), destination.c_str(), signatureType.c_str(), nickname.c_str(), options.c_str());
 }
 
 std::string Message::streamAccept(const std::string& sessionID, bool silent /*= false*/)
