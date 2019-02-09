@@ -820,3 +820,225 @@ std::string Message::getValue(const std::string& answer, const std::string& key)
 
 
 } // namespace SAM
+
+
+// C interface
+
+extern "C" {
+
+#include "i2psam-c.h"
+
+  struct i2psam_stream_session
+  {
+    SAM::StreamSession * impl = nullptr;
+  };
+
+  struct i2psam_socket
+  {
+    std::unique_ptr<SAM::I2pSocket> impl;
+  };
+
+  struct i2psam_destination
+  {
+    char * pub;
+    char * priv;
+  };
+
+  struct i2psam_stream_session * i2psam_stream_session_new(struct i2psam_stream_settings * settings)
+  {
+    struct i2psam_stream_session * session = new i2psam_stream_session;
+    session->impl = new SAM::StreamSession(settings->nickname,
+                                           settings->samhost,
+                                           settings->samport,
+                                           settings->destination,
+                                           settings->i2cp_opts);
+    return session;
+  }
+
+  void i2psam_stream_session_free(struct i2psam_stream_session * session)
+  {
+    delete session->impl;
+    delete session;
+  }
+
+  const char * i2psam_get_samhost(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getSAMHost().c_str());
+  }
+
+  uint16_t i2psam_get_samport(struct i2psam_stream_session * session)
+  {
+    return session->impl->getSAMPort();
+  }
+
+  const char * i2psam_get_nickname(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getNickname().c_str());
+  }
+
+  const char * i2psam_get_session_id(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getSessionID().c_str());
+  }
+
+  const char * i2psam_get_sam_min_version(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getSAMMinVer().c_str());
+  }
+
+  const char * i2psam_get_sam_max_version(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getSAMMaxVer().c_str());
+  }
+
+  const char * i2psam_get_sam_version(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getSAMVersion().c_str());
+  }
+
+  const char * i2psam_get_i2cp_options(struct i2psam_stream_session * session)
+  {
+    return strdup(session->impl->getOptions().c_str());
+  }
+
+  int i2psam_is_sick(struct i2psam_stream_session * session)
+  {
+    if(session->impl->isSick())
+      return 1;
+    else
+      return 0;
+  }
+
+  struct i2psam_socket * i2psam_accept(struct i2psam_stream_session * session, int silent)
+  {
+    auto result = session->impl->accept(silent);
+    if (result.isOk)
+    {
+      struct i2psam_socket * socket = new i2psam_socket;
+      socket->impl = std::move(result.value);
+      return socket;
+    }
+    else
+      return nullptr;
+  }
+
+  struct i2psam_socket * i2psam_connect(struct i2psam_stream_session * session, const char * destination, int silent)
+  {
+    auto result = session->impl->connect(destination, silent != 0);
+    if(result.isOk)
+    {
+      struct i2psam_socket * socket = new i2psam_socket;
+      socket->impl = std::move(result.value);
+      return socket;
+    }
+    else
+      return nullptr;
+  }
+
+  int i2psam_forward(struct i2psam_stream_session * session, const char * host, uint16_t port, int silent)
+  {
+    std::string remote(host);
+    auto result = session->impl->forward(host, port, silent);
+
+    if(result.isOk) return 0;
+    else return -1;
+  }
+
+  const char * i2psam_namelookup(struct i2psam_stream_session * session, const char * name)
+  {
+    auto result = session->impl->namingLookup(name);
+
+    if(result.isOk) return strdup(result.value.c_str());
+    else return nullptr;
+  }
+
+  struct i2psam_destination * i2psam_dest_generate(struct i2psam_stream_session * session)
+  {
+    auto result = session->impl->destGenerate();
+    if(result.isOk)
+    {
+      struct i2psam_destination * dest = new i2psam_destination;
+      dest->pub = strdup(result.value.pub.c_str());
+      dest->priv = strdup(result.value.priv.c_str());
+      return dest;
+    }
+    else
+      return nullptr;
+  }
+
+  void i2psam_stop_forwarding(struct i2psam_stream_session * session, const char * host, uint16_t port)
+  {
+    session->impl->stopForwarding(host, port);
+  }
+
+  void i2psam_stop_forwarding_all(struct i2psam_stream_session * session)
+  {
+    session->impl->stopForwardingAll();
+  }
+
+  struct i2psam_destination * i2psam_get_my_destination(struct i2psam_stream_session * session)
+  {
+    struct i2psam_destination * dest = new i2psam_destination;
+    const auto & mydest = session->impl->getMyDestination();
+    dest->pub = strdup(mydest.pub.c_str());
+    dest->priv = strdup(mydest.priv.c_str());
+    return dest;
+  }
+
+  void i2psam_write(struct i2psam_socket * sock, const char * data, size_t dlen)
+  {
+    const std::string buf(data, dlen);
+    sock->impl->write(buf);
+  }
+
+  char * i2psam_read(struct i2psam_socket * sock, size_t * dlen)
+  {
+    std::string buf = sock->impl->read();
+    size_t sz = sizeof(char) * buf.size();
+    *dlen = sz;
+    if(sz)
+    {
+      char * ret = (char*) malloc(sz);
+      memcpy(ret, buf.c_str(), sz);
+      return ret;
+    }
+    else
+      return nullptr;
+  }
+
+  void i2psam_socket_close(struct i2psam_socket *sock)
+  {
+    sock->impl->close();
+  }
+
+  int i2psam_socket_is_ok(struct i2psam_socket * sock)
+  {
+    if(sock->impl->isOk())
+      return 1;
+    else
+      return 0;
+  }
+
+  void i2psam_socket_free(struct i2psam_socket * sock)
+  {
+    delete sock;
+  }
+
+  const char * i2psam_destination_priv(struct i2psam_destination * dest)
+  {
+    return strdup(dest->priv);
+  }
+
+  const char * i2psam_destination_pub(struct i2psam_destination * dest)
+  {
+    return strdup(dest->pub);
+  }
+
+  void i2psam_destination_free(struct i2psam_destination * dest)
+  {
+    free(dest->pub);
+    free(dest->priv);
+    delete dest;
+  }
+
+}

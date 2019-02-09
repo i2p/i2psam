@@ -8,14 +8,6 @@
 #ifndef I2PSAM_H
 #define I2PSAM_H
 
-#include "compat.h"
-
-#include <string>
-#include <list>
-#include <stdint.h>
-#include <memory>
-#include <utility>
-
 #define SAM_DEFAULT_ADDRESS         "127.0.0.1"
 #define SAM_DEFAULT_PORT            7656
 #define SAM_GENERATE_MY_DESTINATION "TRANSIENT"
@@ -48,7 +40,16 @@
 #define SAM_NAME_OUTBOUND_IPRESTRICTION     "outbound.IPRestriction"
 #define SAM_DEFAULT_OUTBOUND_IPRESTRICTION  2
 #define SAM_NAME_OUTBOUND_PRIORITY          "outbound.priority"
-#define SAM_DEFAULT_OUTBOUND_PRIORITY       0
+#define SAM_DEFAULT_OUTBOUND_PRIORITY
+
+#ifdef __cplusplus // __cplusplus
+#include "compat.h"
+
+#include <string>
+#include <list>
+#include <stdint.h>
+#include <memory>
+#include <utility>
 
 namespace SAM
 {
@@ -404,4 +405,8 @@ private:
 
 } // namespace SAM
 
+
+#else  // __cplusplus
+#include "i2psam-c.h"
+#endif // __cplusplus
 #endif // I2PSAM_H
