@@ -13,7 +13,7 @@
 #define SAM_GENERATE_MY_DESTINATION "TRANSIENT"
 #define SAM_MY_NAME                 "ME"
 #define SAM_DEFAULT_I2P_OPTIONS     ""
-#define SAM_SIGNATURE_TYPE "ECDSA_SHA256_P256"
+#define SAM_SIGNATURE_TYPE "EdDSA_SHA512_Ed25519"
 
 #define SAM_NAME_INBOUND_QUANTITY           "inbound.quantity"
 #define SAM_DEFAULT_INBOUND_QUANTITY        3 // Three tunnels is default now
@@ -230,7 +230,7 @@ private:
     std::string SAMHost_;
     uint16_t SAMPort_;
     const std::string minVer_ = "3.0";
-    const std::string maxVer_ = "3.0";
+    const std::string maxVer_ = "3.1";
     std::string version_;
 
 #ifdef WIN32
