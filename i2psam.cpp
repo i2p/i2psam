@@ -604,6 +604,17 @@ const std::string& StreamSession::getSAMVersion() const
     return socket_.getVersion();
 }
 
+
+const std::string& StreamSession::getSAMMinVer() const
+{
+  return socket_.minVer_;
+}
+
+const std::string& StreamSession::getSAMMaxVer() const
+{
+  return socket_.maxVer_;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 
