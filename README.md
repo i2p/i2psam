@@ -4,7 +4,8 @@ A C++ library for the [SAM v3 API](https://geti2p.net/en/docs/api/samv3).
 
 ## Development Status
 
-Pre-release (ongoing refactoring work and migration to C++11)
+The library will require SAM v3.1 server.
+Pre-release (ongoing refactoring work and migration to C++11).
 
 ## Usage
 
@@ -13,4 +14,6 @@ library `libi2psam.a`:
 
     make
 
-See `eepget.cpp` for example client usage (build with `make eepget`).
+See `eepget.cpp` for example tcp client usage (build with `make eepget`).
+
+
