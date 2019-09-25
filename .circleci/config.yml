@@ -2,14 +2,10 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      - image: eyedeekay/builders:gcc
 
     steps:
       - checkout
-
-      - run:
-          name: Dependencies
-          command: apt-get -yq install g++ make
 
       - run:
           name: Build
