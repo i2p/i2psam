@@ -12,7 +12,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <vector>
 
 #include "i2psam.h"
 

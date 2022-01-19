@@ -56,7 +56,6 @@
 
 //#ifdef __cplusplus
 
-//#include <cstdarg>
 #include <stdio.h>
 #include <cstdint>
 #include <list>
@@ -64,10 +63,10 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include "compat.h"
 
-//ToDo: clean pure C code, keep only C++
 namespace SAM {
 
 typedef u_int SOCKET;
