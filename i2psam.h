@@ -56,6 +56,8 @@
 
 //#ifdef __cplusplus
 
+//#include <cstdarg>
+#include <stdio.h>
 #include <cstdint>
 #include <list>
 #include <memory>
@@ -69,6 +71,16 @@
 namespace SAM {
 
 typedef u_int SOCKET;
+
+static void print_error(const std::string &err) {
+#ifdef DEBUG_ON_STDOUT
+#ifdef WIN32
+  std::cout << err << "(" << WSAGetLastError() << ")" << std::endl;
+#else
+  std::cout << err << "(" << errno << ")" << std::endl;
+#endif
+#endif // DEBUG_ON_STDOUT
+}
 
 class Message {
  public:
@@ -240,7 +252,39 @@ class Message {
                               const std::string &key);
 
  private:
-  static std::string createSAMRequest(const char *format, ...);
+  template<typename... t_args>
+  static std::string
+  createSAMRequest(const char *msg) { return {msg}; }
+
+  template<typename... t_args>
+  static std::string
+  createSAMRequest(const char *format, t_args &&... args)
+  {
+    // ToDo: Check allocated buffer size
+
+    const int bufferStatus = std::snprintf(nullptr, 0, format, args...);
+    if (bufferStatus < 0)
+      {
+        print_error("Failed to allocate buffer");
+        return {};
+      }
+
+    std::vector<char> buffer(bufferStatus + 1);
+    const int status =
+      std::snprintf(buffer.data(), buffer.size(), format, args...);
+
+    if (status < 0)
+      {
+        print_error("Failed to format message");
+        return {};
+      }
+
+#ifdef DEBUG_ON_STDOUT
+    std::cout << "Status: " << status << std::endl;
+#endif // DEBUG_ON_STDOUT
+
+    return {buffer.data()};
+  }
 };
 
 class I2pSocket {

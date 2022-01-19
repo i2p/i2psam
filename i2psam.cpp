@@ -9,8 +9,6 @@
  */
 
 #include <iostream>
-#include <cstdarg>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -28,16 +26,6 @@
 //#define DEBUG_ON_STDOUT
 
 namespace SAM {
-
-static void print_error(const std::string &err) {
-#ifdef DEBUG_ON_STDOUT
-#ifdef WIN32
-  std::cout << err << "(" << WSAGetLastError() << ")" << std::endl;
-#else
-  std::cout << err << "(" << errno << ")" << std::endl;
-#endif
-#endif // DEBUG_ON_STDOUT
-}
 
 #ifdef WIN32
 int I2pSocket::instances_ = 0;
@@ -1047,41 +1035,7 @@ const std::string &RawSession::getSAMMinVer() const { return socket_.minVer_; }
 
 const std::string &RawSession::getSAMMaxVer() const { return socket_.maxVer_; }
 
-//--------------------------------------------------------------------------------------------------
-
-std::string Message::createSAMRequest(const char *format, ...) {
-  // ToDo: GR note: Creating a 65K byte buffer on the stack, and then wasting the time to zero it out
-  //                before using it.  Just to send a 30 byte string?, seems really wasteful to me, time more than storage, many mSec...
-
-  std::va_list args;
-  va_start(args, format);
-
-  std::va_list argsCopy;
-  va_copy(argsCopy, args);
-  const char * const formatCopy = format;
-  const int bufferStatus = std::vsnprintf(nullptr, 0, formatCopy, argsCopy);
-  va_end(argsCopy);
-
-  if (bufferStatus < 0) {
-    print_error("Failed to allocate buffer");
-    return {};
-  }
-
-  std::vector<char> buffer(bufferStatus + 1);
-  const int status = std::vsnprintf(buffer.data(), buffer.size(), formatCopy, args);
-  va_end(args);
-
-  if (status < 0) {
-    print_error("Failed to format message");
-    return {};
-  }
-
-#ifdef DEBUG_ON_STDOUT
-  std::cout << "Status: " << status << std::endl;
-#endif // DEBUG_ON_STDOUT
-
-  return {buffer.data()};
-}
+//-----------------------------------------------------------------------------
 
 std::string Message::hello(const std::string &minVer, const std::string &maxVer) {
   /**
