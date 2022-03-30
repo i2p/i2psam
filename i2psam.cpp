@@ -418,9 +418,19 @@ RequestResult<const FullDestination> StreamSession::destGenerate() const
 
 FullDestination StreamSession::createStreamSession(const std::string& destination)
 {
+    return createStreamSession(destination, SAM_SIGNATURE_TYPE);
+}
+
+FullDestination StreamSession::createStreamSession(const std::string& destination, const std::string& sigType)
+{
+    return createStreamSession(destination, sigType, i2pOptions_);
+}
+
+FullDestination StreamSession::createStreamSession(const std::string& destination, const std::string& sigType, const std::string& i2pOptions)
+{ 
     typedef Message::Answer<const std::string> AnswerType;
 
-    const AnswerType answer = createStreamSession(socket_, sessionID_, nickname_, destination, i2pOptions_, SAM_SIGNATURE_TYPE);
+    const AnswerType answer = createStreamSession(socket_, sessionID_, nickname_, destination, i2pOptions, sigType);
     if (answer.status != Message::OK)
     {
         fallSick();

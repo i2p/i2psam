@@ -390,6 +390,8 @@ private:
 
     void fallSick() const;
     FullDestination createStreamSession(const std::string &destination);
+    FullDestination createStreamSession(const std::string &destination, const std::string &sigType);
+    FullDestination createStreamSession(const std::string &destination, const std::string &sigType, const std::string &i2pOptions);
 
     static Message::Answer<const std::string> rawRequest(I2pSocket& socket, const std::string& requestStr);
     static Message::Answer<const std::string> request(I2pSocket& socket, const std::string& requestStr, const std::string& keyOnSuccess);
