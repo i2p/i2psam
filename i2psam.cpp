@@ -16,7 +16,7 @@
 
 // Was 65536, seemed unnecessarily large
 #define SAM_BUFSIZE         4096
-#define I2P_DESTINATION_SIZE 516
+#define I2P_MIN_DESTINATION_SIZE 516
 
 // Define this, if you want more of the original standard output diagnostics
 // #define DEBUG_ON_STDOUT
@@ -426,7 +426,7 @@ FullDestination StreamSession::createStreamSession(const std::string& destinatio
         fallSick();
         return FullDestination();
     }
-    return FullDestination(answer.value.substr(0, I2P_DESTINATION_SIZE), answer.value, (destination == SAM_GENERATE_MY_DESTINATION));
+    return FullDestination(answer.value.c_str(), answer.value, (destination == SAM_GENERATE_MY_DESTINATION));
 }
 
 void StreamSession::fallSick() const
