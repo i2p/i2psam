@@ -334,20 +334,23 @@ RequestResult<std::unique_ptr<I2pSocket> > StreamSession::connect(const std::str
 
     std::unique_ptr<I2pSocket> streamSocket(new I2pSocket(socket_));
     const Message::eStatus status = connect(*streamSocket, sessionID_, destination, silent);
-    switch(status)
-    {
-    case Message::OK:
-        return ResultType(std::move(streamSocket));
-    case Message::EMPTY_ANSWER:
-    case Message::CLOSED_SOCKET:
-    case Message::INVALID_ID:
-    case Message::I2P_ERROR:
-        fallSick();
-        break;
-    default:
-        break;
+    if (!silent) {
+        switch(status)
+        {
+        case Message::OK:
+            return ResultType(std::move(streamSocket));
+        case Message::EMPTY_ANSWER:
+        case Message::CLOSED_SOCKET:
+        case Message::INVALID_ID:
+        case Message::I2P_ERROR:
+            fallSick();
+            break;
+        default:
+            break;
+        }
+        return ResultType();
     }
-    return ResultType();
+    return ResultType(std::move(streamSocket));
 }
 
 RequestResult<void> StreamSession::forward(const std::string& host, uint16_t port, bool silent)
