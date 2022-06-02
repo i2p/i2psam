@@ -45,11 +45,14 @@
 #ifdef __cplusplus // __cplusplus
 #include "compat.h"
 
+#include <boost/asio.hpp>
 #include <string>
 #include <list>
 #include <stdint.h>
 #include <memory>
 #include <utility>
+
+using namespace boost::asio;
 
 namespace SAM
 {
@@ -213,6 +216,13 @@ public:
 
     void write(const std::string& msg);
     std::string read();
+
+    // only include these if we're compiling with boost
+    //#ifdef USE_BOOST
+    std::size_t write_some(boost::asio::const_buffers_1 buffer, boost::system::error_code error);
+    std::size_t read_some(boost::asio::mutable_buffers_1 buffer, boost::system::error_code error);
+    //#endif
+    
     SOCKET release();
     void close();
 

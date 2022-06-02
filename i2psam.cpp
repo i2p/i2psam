@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
+#include <boost/asio.hpp>
 
 // Was 65536, seemed unnecessarily large
 #define SAM_BUFSIZE         4096
@@ -167,6 +168,22 @@ void I2pSocket::write(const std::string& msg)
         print_error("I2pSocket was closed");
         return;
     }
+}
+
+std::size_t I2pSocket::write_some(boost::asio::const_buffers_1 buffer, boost::system::error_code ec) {
+    // get a string from the buffer
+    std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer));
+    // get the buffer size
+    std::size_t size = boost::asio::buffer_size(buffer);
+    write(str);
+    return size;
+}
+
+std::size_t I2pSocket::read_some(boost::asio::mutable_buffers_1 buffer, boost::system::error_code ec) {
+    // get a string from the buffer
+    //std::string str(boost::asio::buffers_begin(buffer), boost::asio::buffers_end(buffer));
+    std::string str = read();
+    return str.size();
 }
 
 std::string I2pSocket::read()
