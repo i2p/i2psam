@@ -59,10 +59,11 @@
 #ifdef __cplusplus // __cplusplus
 #include "compat.h"
 
-#include <stdio.h>
 #include <cstdint>
+#include <iostream>
 #include <list>
 #include <memory>
+#include <stdio.h>
 #include <string>
 #include <thread>
 #include <utility>

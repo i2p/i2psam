@@ -10,10 +10,9 @@
  * see full documentation about SAM at http://www.i2p2.i2p/samv3.html
  */
 
-#include <iostream>
+#include <ctime>
 #include <cstdlib>
 #include <cstring>
-#include <ctime>
 
 #include "i2psam.h"
 
