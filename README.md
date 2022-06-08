@@ -9,11 +9,20 @@ Pre-release (ongoing refactoring work and migration to C++11).
 
 ## Usage
 
+### Library
+
 Copy the files `i2psam.cpp` and `i2psam.h` into your codebase, or build the
 library `libi2psam.a`:
 
-    make
+```
+make
+```
 
-See `eepget.cpp` for example tcp client usage (build with `make eepget`).
+### Example
 
+See `eepget.cpp` for example TCP client usage.
+Build with:
 
+```
+make eepget
+```

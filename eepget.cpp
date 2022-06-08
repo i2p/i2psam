@@ -1,7 +1,11 @@
-// Copyright (c) 2017 The I2P Project
-// Distributed under the MIT software license, see the accompanying
-// file LICENSE or http://www.opensource.org/licenses/mit-license.php.
-//--------------------------------------------------------------------------------------------------
+/**
+ * Copyright (c) 2017 The I2P Project
+ *
+ * Distributed under the MIT software license, see the accompanying
+ * file LICENSE or http://www.opensource.org/licenses/mit-license.php.
+ *
+ * see full documentation about SAM at http://www.i2p2.i2p/samv3.html
+ */
 
 #include "i2psam.h"
 
