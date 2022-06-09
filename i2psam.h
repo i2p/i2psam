@@ -7,7 +7,7 @@
  * Distributed under the MIT software license, see the accompanying
  * file LICENSE or http://www.opensource.org/licenses/mit-license.php.
  *
- * see full documentation about SAM at http://www.i2p2.i2p/samv3.html
+ * See full documentation about SAM at http://www.i2p2.i2p/samv3.html
  */
 
 #ifndef I2PSAM_H__
@@ -54,7 +54,7 @@
 #define SAM_DEFAULT_I2CP_LEASESET_ENC_TYPE  "0,4"
 
 // Define this, if you want more of the original standard output diagnostics
-#define DEBUG_ON_STDOUT
+//#define DEBUG_ON_STDOUT
 
 #ifdef __cplusplus // __cplusplus
 #include "compat.h"
@@ -79,9 +79,9 @@ static void print_error(const std::string &err)
 #ifdef DEBUG_ON_STDOUT
 #ifdef WIN32
   std::cout << err << "(" << WSAGetLastError() << ")" << std::endl;
-#else
+#else // WIN32
   std::cout << err << "(" << errno << ")" << std::endl;
-#endif
+#endif // WIN32
 #endif // DEBUG_ON_STDOUT
 }
 
@@ -335,7 +335,7 @@ class I2pSocket
   static int instances_;
   static void initWSA();
   static void freeWSA();
-#endif
+#endif // WIN32
 
   void handshake();
   void init();

@@ -6,7 +6,7 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  *
- * see full documentation about SAM at http://www.i2p2.i2p/samv3.html
+ * See full documentation about SAM at http://www.i2p2.i2p/samv3.html
  */
 
 #ifndef I2PSAM_COMPAT_H
@@ -16,21 +16,20 @@
 
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
-
-#endif
+#endif // _WIN32_WINNT
 
 #define _WIN32_WINNT 0x0501
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
-#endif
+#endif // WIN32_LEAN_AND_MEAN
 
 #ifndef NOMINMAX
 #define NOMINMAX
-#endif
+#endif // NOMINMAX
 
 #ifdef FD_SETSIZE
 #undef FD_SETSIZE // prevent redefinition compiler warning
-#endif
+#endif // FD_SETSIZE
 
 #define FD_SETSIZE 1024 // max number of fds in fd_set
 
@@ -38,7 +37,9 @@
 #include <mswsock.h>
 #include <windows.h>
 #include <ws2tcpip.h>
-#else // NO WIN32
+
+#else // WIN32
+
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -54,7 +55,7 @@
 
 #ifdef WIN32
 #define MSG_DONTWAIT 0
-#else
+#else // WIN32
 typedef u_int SOCKET;
 #include "errno.h"
 #define WSAGetLastError() errno
@@ -68,16 +69,16 @@ typedef u_int SOCKET;
 #define WSAENOTSOCK EBADF
 #define INVALID_SOCKET (SOCKET)(~0)
 #define SOCKET_ERROR -1
-#endif
+#endif // WIN32
 
 #ifdef WIN32
 #ifndef S_IRUSR
 #define S_IRUSR 0400
 #define S_IWUSR 0200
-#endif
-#else
+#endif // S_IRUSR
+#else // WIN32
 #define MAX_PATH 1024
-#endif
+#endif // WIN32
 
 // As Solaris does not have the MSG_NOSIGNAL flag for send(2) syscall, it is defined as 0
 #if !defined(HAVE_MSG_NOSIGNAL) && !defined(MSG_NOSIGNAL)
@@ -85,15 +86,17 @@ typedef u_int SOCKET;
 #endif
 
 #ifndef WIN32
+
 // PRIO_MAX is not defined on Solaris
 #ifndef PRIO_MAX
 #define PRIO_MAX 20
-#endif
+#endif // PRIO_MAX
+
 #define THREAD_PRIORITY_LOWEST PRIO_MAX
 #define THREAD_PRIORITY_BELOW_NORMAL 2
 #define THREAD_PRIORITY_NORMAL 0
 #define THREAD_PRIORITY_ABOVE_NORMAL (-2)
-#endif
+#endif // WIN32
 
 size_t strnlen_int(const char *start, size_t max_len);
 

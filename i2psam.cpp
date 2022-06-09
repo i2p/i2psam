@@ -7,7 +7,7 @@
  * Distributed under the MIT software license, see the accompanying
  * file LICENSE or http://www.opensource.org/licenses/mit-license.php.
  *
- * see full documentation about SAM at http://www.i2p2.i2p/samv3.html
+ * See full documentation about SAM at http://www.i2p2.i2p/samv3.html
  */
 
 #include <ctime>
@@ -192,7 +192,7 @@ void I2pSocket::close()
       ::closesocket(socket_);
 #else
       ::close(socket_);
-#endif
+#endif // WIN32
       socket_ = INVALID_SOCKET;
     }
 }
@@ -223,7 +223,7 @@ SAMSession::SAMSession(
 {
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a brand new SAM stream session (" << sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 SAMSession::SAMSession(SAMSession& rhs)
@@ -238,7 +238,7 @@ SAMSession::SAMSession(SAMSession& rhs)
     rhs.socket_.close();
 #ifdef DEBUG_ON_STDOUT
     std::cout << "Created a new SAM session (" << sessionID_ << ")  from another (" << rhs.sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 /*static*/
@@ -260,7 +260,7 @@ std::string SAMSession::generateSessionID()
 
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Generated session ID: " << result << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
   return result;
 }
 
@@ -308,12 +308,12 @@ RequestResult<const FullDestination> SAMSession::destGenerate() const
 
 FullDestination SAMSession::createSession(const std::string& destination)
 {
-    return createSession(destination, SAM_SIGNATURE_TYPE);
+  return createSession(destination, SAM_SIGNATURE_TYPE);
 }
 
 FullDestination SAMSession::createSession(const std::string& destination, const std::string& sigType)
 {
-    return createSession(destination, sigType, i2pOptions_);
+  return createSession(destination, sigType, i2pOptions_);
 }
 
 void SAMSession::fallSick() const { isSick_ = true; }
@@ -462,7 +462,7 @@ StreamSession::StreamSession(
   myDestination_ = createStreamSession(destination);
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a brand new SAM stream session (" << sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 StreamSession::StreamSession(StreamSession &rhs)
@@ -477,7 +477,7 @@ StreamSession::StreamSession(StreamSession &rhs)
 
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a new SAM stream session (" << sessionID_ << ")  from another (" << rhs.sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 StreamSession::~StreamSession()
@@ -485,7 +485,7 @@ StreamSession::~StreamSession()
   stopForwardingAll();
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Closing SAM stream session (" << sessionID_ << ") ..." << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 RequestResult<std::unique_ptr<I2pSocket>> StreamSession::accept(bool silent)
@@ -678,7 +678,7 @@ DatagramSession::DatagramSession(
   myDestination_ = createDatagramSession(destination);
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a brand new SAM datagram session (" << sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 DatagramSession::DatagramSession(DatagramSession &rhs)
@@ -692,24 +692,24 @@ DatagramSession::DatagramSession(DatagramSession &rhs)
 
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a new SAM datagram session (" << sessionID_ << ")  from another (" << rhs.sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 DatagramSession::~DatagramSession()
 {
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Closing SAM datagram session (" << sessionID_ << ") ..." << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 FullDestination DatagramSession::createDatagramSession(const std::string& destination)
 {
-    return createDatagramSession(destination, SAM_SIGNATURE_TYPE);
+  return createDatagramSession(destination, SAM_SIGNATURE_TYPE);
 }
 
 FullDestination DatagramSession::createDatagramSession(const std::string& destination, const std::string& sigType)
 {
-    return createDatagramSession(destination, sigType, i2pOptions_);
+  return createDatagramSession(destination, sigType, i2pOptions_);
 }
 
 FullDestination DatagramSession::createDatagramSession(const std::string& destination, const std::string& sigType, const std::string& i2pOptions)
@@ -778,7 +778,7 @@ RawSession::RawSession(
   myDestination_ = createRawSession(destination);
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a brand new SAM datagram session (" << sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 RawSession::RawSession(RawSession &rhs)
@@ -791,14 +791,14 @@ RawSession::RawSession(RawSession &rhs)
   (void) createRawSession(myDestination_.priv);
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Created a new SAM datagram session (" << sessionID_ << ")  from another (" << rhs.sessionID_ << ")" << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 RawSession::~RawSession()
 {
 #ifdef DEBUG_ON_STDOUT
   std::cout << "Closing SAM datagram session (" << sessionID_ << ") ..." << std::endl;
-#endif
+#endif // DEBUG_ON_STDOUT
 }
 
 FullDestination RawSession::createRawSession(const std::string& destination)
@@ -1221,22 +1221,26 @@ int i2psam_is_sick(struct i2psam_stream_session *session)
 struct i2psam_socket *i2psam_accept(struct i2psam_stream_session *session, int silent)
 {
   auto result = session->impl->accept(silent);
-  if (result.isOk) {
-    struct i2psam_socket *socket = new i2psam_socket;
-    socket->impl = std::move(result.value);
-    return socket;
-  } else
+  if (result.isOk)
+    {
+      struct i2psam_socket *socket = new i2psam_socket;
+      socket->impl = std::move(result.value);
+      return socket;
+    }
+  else
     return nullptr;
 }
 
 struct i2psam_socket *i2psam_connect(struct i2psam_stream_session *session, const char *destination, int silent)
 {
   auto result = session->impl->connect(destination, silent != 0);
-  if (result.isOk) {
-    struct i2psam_socket *socket = new i2psam_socket;
-    socket->impl = std::move(result.value);
-    return socket;
-  } else
+  if (result.isOk)
+    {
+      struct i2psam_socket *socket = new i2psam_socket;
+      socket->impl = std::move(result.value);
+      return socket;
+    }
+  else
     return nullptr;
 }
 

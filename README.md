@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/github/license/i2p/i2psam.svg)](https://github.com/i2p/i2psam/blob/master/LICENSE)
+
 # i2psam
 
 A C++ library for the [SAM v3 API](https://geti2p.net/en/docs/api/samv3).

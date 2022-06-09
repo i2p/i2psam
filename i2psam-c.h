@@ -1,5 +1,5 @@
 /**
- * c wrapper for i2psam
+ * C wrapper for i2psam
  * Author: jeff
  * License: MIT
  * probably contains bugs :-DDDD
@@ -15,7 +15,8 @@ struct i2psam_destination;
 struct i2psam_stream_session;
 struct i2psam_socket;
 
-struct i2psam_stream_settings {
+struct i2psam_stream_settings
+{
   /**
    * hostname of sam interface
    */
