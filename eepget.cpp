@@ -31,6 +31,5 @@ int main(int argc, char **argv)
       reply = conn->read();
     }
 
-  std::cout << std::endl;
   conn->close();
 }
