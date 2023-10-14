@@ -197,13 +197,7 @@ void I2pSocket::close()
     }
 }
 
-bool I2pSocket::isOk() const { 
-		// Segmentation fault if not open SAMPOrt_ 
-		// socket_ type is u_int
-		std::cout << "print a socket" << std::endl;
-		std::cout << socket_ << std::endl;
-		return socket_ != INVALID_SOCKET; 
-}
+bool I2pSocket::isOk() const { return socket_ != INVALID_SOCKET; }
 
 const std::string &I2pSocket::getHost() const { return SAMHost_; }
 
