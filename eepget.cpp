@@ -22,6 +22,11 @@ int main(int argc, char **argv)
   auto lookupResult = s.namingLookup(target);
   auto connResult = s.connect(lookupResult.value, false);
   auto conn = connResult.value.get();
+  if (conn == nullptr)
+  {
+	std::cerr << "Check your SAM port" << std::endl;
+	return 1;
+  }
   conn->write("GET / HTTP/1.1\r\n\r\n");
   auto reply = conn->read();
 
